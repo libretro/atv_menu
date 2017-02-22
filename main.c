@@ -105,6 +105,7 @@ void set_style(struct nk_context *ctx, enum theme theme)
       table[NK_COLOR_TAB_HEADER] = nk_rgba(48, 83, 111, 255);
       nk_style_from_table(ctx, table);
       colors_custom[NK_COLOR_TEXT_HOVER] = nk_rgba(255, 255, 255, 255);
+      colors_custom[NK_COLOR_TEXT_ACTIVE] = nk_rgba(0, 0, 0, 255);
    }
    else 
    {
@@ -125,57 +126,6 @@ static void reset_style(struct nk_context *ctx)
 void test()
 {
    exit(1);
-}
-
-static int button_sidebar(struct nk_context *ctx, int img_idx, 
-   char* label, bool image, struct nk_font* font, void *data)
-{
-   ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
-   ctx->style.button.border_color = nk_rgba(0,0,0,0);
-   ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
-   nk_style_set_font(ctx, &font->handle);
-   if (image)
-   {
-      if (sidebar_button_text(ctx, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT))
-         printf("hello");
-   }
-   else
-   {
-      if (nk_button_label(ctx, label))
-         printf("hello");
-   }
-   reset_style(ctx);
-}
-
-static void button_placeholder(struct nk_context *ctx)
-{
-   ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
-   ctx->style.button.border_color = nk_rgba(0,0,0,0);
-   nk_button_text(ctx, "", 0);
-   reset_style(ctx);
-}
-
-static void sidebar_spacer(struct nk_context *ctx, int height)
-{
-   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
-   nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
-   nk_layout_row_push(ctx, 1.0f);
-   button_placeholder(ctx);
-   nk_layout_row_end(ctx);
-}
-
-static void sidebar_row(struct nk_context *ctx, int img_idx, char* label, 
-   bool image, struct mui_font* f, void *data)
-{
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
-   nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.5f, 2);
-   nk_layout_row_push(ctx, 0.05f);
-   button_placeholder(ctx);
-   nk_layout_row_push(ctx, 0.95f);
-   button_sidebar(ctx, img_idx, label, image, f->font, data);
-   nk_layout_row_end(ctx);
 }
 
 static void error_callback(int e, const char *d)
@@ -248,7 +198,13 @@ int main(void)
       /* sidebar */
       nk_begin(ctx, "Sidebar", nk_rect(0, 0, WINDOW_WIDTH * 30 / 100, WINDOW_HEIGHT),NULL);
       {
-         button_placeholder(ctx);
+         ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
+         ctx->style.button.hover = nk_style_item_color(nk_rgba(0,0,0,0));
+         ctx->style.button.active = nk_style_item_color(nk_rgba(0,0,0,0));
+         ctx->style.button.border_color = nk_rgba(0,0,0,0);
+         ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+
+         sidebar_placeholder(ctx);
          sidebar_spacer(ctx, 32);
          sidebar_row(ctx, 0, "", true, &fonts[6], (void*)test);
          sidebar_spacer(ctx, 32);
@@ -257,6 +213,8 @@ int main(void)
          sidebar_row(ctx, 3, "File Browser", true, &fonts[3], (void*)test);
          sidebar_spacer(ctx, 32);
          sidebar_row(ctx, 4, "Settings", true, &fonts[3], (void*)test);
+
+         reset_style(ctx);
       }
       nk_end(ctx);
 
