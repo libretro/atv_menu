@@ -88,7 +88,8 @@ int main(void)
       nk_glfw3_font_stash_begin(&atlas);
       for (int i = 0 ; i < 7; i++)
       {
-         fonts[i].font = nk_font_atlas_add_from_file(atlas, "fonts/DroidSans.ttf", (i + 1) * 8, 0);
+         fonts[i].font = nk_font_atlas_add_from_file(atlas, 
+            "fonts/DroidSans.ttf", (i + 1) * 8, 0);
          fonts[i].height = (i + 1) * 8;
       }
 
@@ -125,6 +126,19 @@ int main(void)
          sidebar_row(ctx, 4, "Settings", true, &fonts[3], test);
          sidebar_row(ctx, 5, "Exit", true, &fonts[3], exit);
 
+         set_style(ctx);
+      }
+      nk_end(ctx);
+
+      ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
+      nk_begin(ctx, "Content", nk_rect(WINDOW_WIDTH * 30 / 100 + 1, 0, WINDOW_WIDTH * 70 / 100, WINDOW_HEIGHT), 0);
+      { 
+         set_style(ctx);
+         nk_layout_row_dynamic(ctx, 280, 4);
+         content_entry(ctx, "Super Metroid", "Super Nintendo Entertainment System", &fonts[2], &fonts[1], test_entry, test);
+         content_entry(ctx, "Label 2", "Sublabel 2", &fonts[2], &fonts[1], color_bars, test);
+         content_entry(ctx, "Label 3", "Sublabel 3", &fonts[2], &fonts[1], color_bars, test);
+         content_entry(ctx, "Label 4", "Sublabel 4", &fonts[2], &fonts[1], color_bars, test);
          set_style(ctx);
       }
       nk_end(ctx);

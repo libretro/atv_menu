@@ -54,8 +54,9 @@ struct nk_color atv_colors_custom[NK_COLOR_CUSTOM_COUNT];
 struct atv_icon sidebar_icons[10];
 struct atv_font fonts[7];
 
-/* helpers */
+struct nk_image color_bars, test_entry;
 
+/* helpers */
 static void set_style(struct nk_context *ctx)
 {
    atv_colors[NK_COLOR_TEXT] = nk_rgba(158, 158, 158, 255);
@@ -132,6 +133,9 @@ static void sidebar_icon_load()
    atv_icon_load(&sidebar_icons[ICN_SIDEBAR_FILES], "folder");
    atv_icon_load(&sidebar_icons[ICN_SIDEBAR_SETTINGS], "settings");
    atv_icon_load(&sidebar_icons[ICN_SIDEBAR_EXIT], "exit");
+
+   color_bars = icon_load("png/color_bars.png");
+   test_entry = icon_load("png/test.png");
 }
 
 /* widgets */
@@ -276,12 +280,43 @@ static void sidebar_spacer(struct nk_context *ctx, int height)
 static void sidebar_row(struct nk_context *ctx, int img_idx, char* label, 
    bool image, struct atv_font* f, void (*cb)(void))
 {
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 1);
    nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.5f, 2);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 2);
    nk_layout_row_push(ctx, 0.05f);
    sidebar_placeholder(ctx);
    nk_layout_row_push(ctx, 0.95f);
    sidebar_button(ctx, img_idx, label, image, f->font, cb);
    nk_layout_row_end(ctx);
+}
+
+static int content_button(struct nk_context *ctx, struct nk_image img, void (*cb)(void))
+{
+   if (nk_button_image(ctx, img))
+      cb();
+}
+
+static void content_entry(struct nk_context *ctx, char* label, char *sublabel, 
+   struct atv_font *f1, struct atv_font *f2, struct nk_image img, void (*cb)(void))
+{
+   nk_group_begin(ctx, "", NK_WINDOW_NO_SCROLLBAR);
+   {
+      nk_layout_row_begin(ctx, NK_DYNAMIC, 200, 1);
+      nk_layout_row_push(ctx, 0.0f);
+      content_button(ctx, img, cb);
+      nk_layout_row_end(ctx);
+      nk_layout_row_begin(ctx, NK_DYNAMIC, f1->height * 1.5, 1);
+      nk_layout_row_push(ctx, 0.0f);
+      nk_style_set_font(ctx, &f1->font->handle);
+      nk_label(ctx, label, NK_TEXT_ALIGN_LEFT);
+      nk_layout_row_end(ctx);
+      nk_layout_row_begin(ctx, NK_DYNAMIC, f1->height * 1.5, 1);
+      nk_layout_row_push(ctx, 0.0f);
+      nk_style_set_font(ctx, &f2->font->handle);
+      nk_label(ctx, sublabel, NK_TEXT_ALIGN_LEFT);
+      nk_layout_row_end(ctx);
+      nk_group_end(ctx);
+      set_style(ctx);
+   }
+
 }
