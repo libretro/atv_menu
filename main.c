@@ -120,13 +120,13 @@ int main(void)
 
          sidebar_placeholder(ctx);
          sidebar_spacer(ctx, 32);
-         sidebar_row(ctx, 0, "", true, &fonts[6], (void*)test);
+         sidebar_row(ctx, 0, "", true, &fonts[6], test);
          sidebar_spacer(ctx, 32);
-         sidebar_row(ctx, 1, "History", true, &fonts[3], (void*)test);
-         sidebar_row(ctx, 2, "Collections", true, &fonts[3], (void*)test);
-         sidebar_row(ctx, 3, "File Browser", true, &fonts[3], (void*)test);
+         sidebar_row(ctx, 1, "History", true, &fonts[3], test);
+         sidebar_row(ctx, 2, "Collections", true, &fonts[3], test);
+         sidebar_row(ctx, 3, "File Browser", true, &fonts[3], test);
          sidebar_spacer(ctx, 32);
-         sidebar_row(ctx, 4, "Settings", true, &fonts[3], (void*)test);
+         sidebar_row(ctx, 4, "Settings", true, &fonts[3], test);
 
          set_style(ctx);
       }
