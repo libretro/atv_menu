@@ -78,13 +78,7 @@ int main(void)
       exit(1);
    }
 
-   atv_icon_load(&sidebar_icons[0], "search_fab");
-   atv_icon_load(&sidebar_icons[1], "history");
-   atv_icon_load(&sidebar_icons[2], "list");
-   atv_icon_load(&sidebar_icons[3], "folder");
-   atv_icon_load(&sidebar_icons[4], "settings");
-   atv_icon_load(&sidebar_icons[5], "exit");
-   //sidebar_icons[0].normal = icon_load("png/search_hover.png");
+   sidebar_icon_load();
 
    ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
    /* Load Fonts: if none of these are loaded a default font will be used  */

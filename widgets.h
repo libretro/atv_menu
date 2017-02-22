@@ -18,6 +18,7 @@
 /* structs */
 struct atv_icon
 {
+   char   filename[256];
    struct nk_image normal;
    struct nk_image selected;
    struct nk_image hover;
@@ -31,9 +32,19 @@ struct atv_font
 
 /* enums */
 enum atv_color_enum {
-    NK_COLOR_TEXT_HOVER,
-    NK_COLOR_TEXT_ACTIVE,
-    NK_COLOR_CUSTOM_COUNT,
+   NK_COLOR_TEXT_HOVER,
+   NK_COLOR_TEXT_ACTIVE,
+   NK_COLOR_CUSTOM_COUNT,
+};
+
+enum atv_sidebar_icons {
+   ICN_SIDEBAR_SEARCH,
+   ICN_SIDEBAR_HISTORY,
+   ICN_SIDEBAR_PLAYLISTS,
+   ICN_SIDEBAR_FILES,
+   ICN_SIDEBAR_SETTINGS,
+   ICN_SIDEBAR_EXIT,
+   ICN_SIDEBAR_COUNT,
 };
 
 /* globals */
@@ -44,6 +55,7 @@ struct atv_icon sidebar_icons[10];
 struct atv_font fonts[7];
 
 /* helpers */
+
 static void set_style(struct nk_context *ctx)
 {
    atv_colors[NK_COLOR_TEXT] = nk_rgba(158, 158, 158, 255);
@@ -110,6 +122,16 @@ static bool atv_icon_load(struct atv_icon *icon, const char *filename)
    snprintf(buf, sizeof(buf), "png/%s_hover.png", filename);
    icon->hover = icon_load(buf);
    fflush(stdout);
+}
+
+static void sidebar_icon_load()
+{
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_SEARCH], "search_fab");
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_HISTORY], "history");
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_PLAYLISTS], "list");
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_FILES], "folder");
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_SETTINGS], "settings");
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_EXIT], "exit");
 }
 
 /* widgets */
