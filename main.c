@@ -37,92 +37,6 @@
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
 #define LEN(a) (sizeof(a)/sizeof(a)[0])
 
-enum theme {THEME_BLACK, THEME_WHITE, THEME_RED, THEME_BLUE, THEME_DARK};
-
-
-static struct nk_image icon_load(const char *filename)
-{
-   int x,y,n;
-   GLuint tex;
-   unsigned char *data = stbi_load(filename, &x, &y, &n, 0);
-
-   glGenTextures(1, &tex);
-   glBindTexture(GL_TEXTURE_2D, tex);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-   glGenerateMipmap(GL_TEXTURE_2D);
-   stbi_image_free(data);
-   return nk_image_id((int)tex);
-}
-
-static bool mui_icon_load(struct mui_icon *icon, const char *filename)
-{
-   char buf[256];
-   fflush(stdout);
-   snprintf(buf, sizeof(buf), "png/%s_idle.png", filename);
-   icon->normal = icon_load(buf);
-   snprintf(buf, sizeof(buf), "png/%s_active.png", filename);
-   icon->selected = icon_load(buf);
-   snprintf(buf, sizeof(buf), "png/%s_hover.png", filename);
-   icon->hover = icon_load(buf);
-   fflush(stdout);
-}
-
-void set_style(struct nk_context *ctx, enum theme theme)
-{
-   if (theme == THEME_BLUE) 
-   {
-      table[NK_COLOR_TEXT] = nk_rgba(158, 158, 158, 255);
-      table[NK_COLOR_WINDOW] = nk_rgba(57, 67, 71, 215);
-      table[NK_COLOR_HEADER] = nk_rgba(51, 51, 56, 220);
-      table[NK_COLOR_BORDER] = nk_rgba(46, 46, 46, 255);
-      table[NK_COLOR_BUTTON] = nk_rgba(255, 112, 67, 255);
-      table[NK_COLOR_BUTTON_HOVER] = nk_rgba(58, 93, 121, 255);
-      table[NK_COLOR_BUTTON_ACTIVE] = nk_rgba(63, 98, 126, 255);
-      table[NK_COLOR_TOGGLE] = nk_rgba(50, 58, 61, 255);
-      table[NK_COLOR_TOGGLE_HOVER] = nk_rgba(45, 53, 56, 255);
-      table[NK_COLOR_TOGGLE_CURSOR] = nk_rgba(48, 83, 111, 255);
-      table[NK_COLOR_SELECT] = nk_rgba(57, 67, 61, 255);
-      table[NK_COLOR_SELECT_ACTIVE] = nk_rgba(48, 83, 111, 255);
-      table[NK_COLOR_SLIDER] = nk_rgba(50, 58, 61, 255);
-      table[NK_COLOR_SLIDER_CURSOR] = nk_rgba(48, 83, 111, 245);
-      table[NK_COLOR_SLIDER_CURSOR_HOVER] = nk_rgba(53, 88, 116, 255);
-      table[NK_COLOR_SLIDER_CURSOR_ACTIVE] = nk_rgba(58, 93, 121, 255);
-      table[NK_COLOR_PROPERTY] = nk_rgba(50, 58, 61, 255);
-      table[NK_COLOR_EDIT] = nk_rgba(50, 58, 61, 225);
-      table[NK_COLOR_EDIT_CURSOR] = nk_rgba(210, 210, 210, 255);
-      table[NK_COLOR_COMBO] = nk_rgba(50, 58, 61, 255);
-      table[NK_COLOR_CHART] = nk_rgba(50, 58, 61, 255);
-      table[NK_COLOR_CHART_COLOR] = nk_rgba(48, 83, 111, 255);
-      table[NK_COLOR_CHART_COLOR_HIGHLIGHT] = nk_rgba(255, 0, 0, 255);
-      table[NK_COLOR_SCROLLBAR] = nk_rgba(50, 58, 61, 255);
-      table[NK_COLOR_SCROLLBAR_CURSOR] = nk_rgba(48, 83, 111, 255);
-      table[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(53, 88, 116, 255);
-      table[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(58, 93, 121, 255);
-      table[NK_COLOR_TAB_HEADER] = nk_rgba(48, 83, 111, 255);
-      nk_style_from_table(ctx, table);
-      colors_custom[NK_COLOR_TEXT_HOVER] = nk_rgba(255, 255, 255, 255);
-      colors_custom[NK_COLOR_TEXT_ACTIVE] = nk_rgba(0, 0, 0, 255);
-   }
-   else 
-   {
-      nk_style_default(ctx);
-   }
-   
-   nk_style_set_font(ctx, &fonts[0].font->handle);
-   ctx->style.button.text_alignment = NK_TEXT_ALIGN_CENTERED;
-   
-}
-
-static void reset_style(struct nk_context *ctx)
-{
-   set_style(ctx, THEME_BLUE);
-}
-
-
 void test()
 {
    exit(1);
@@ -163,11 +77,11 @@ int main(void)
       exit(1);
    }
 
-   mui_icon_load(&sidebar_icons[0], "search_fab");
-   mui_icon_load(&sidebar_icons[1], "history");
-   mui_icon_load(&sidebar_icons[2], "list");
-   mui_icon_load(&sidebar_icons[3], "folder");
-   mui_icon_load(&sidebar_icons[4], "settings");
+   atv_icon_load(&sidebar_icons[0], "search_fab");
+   atv_icon_load(&sidebar_icons[1], "history");
+   atv_icon_load(&sidebar_icons[2], "list");
+   atv_icon_load(&sidebar_icons[3], "folder");
+   atv_icon_load(&sidebar_icons[4], "settings");
    //sidebar_icons[0].normal = icon_load("png/search_hover.png");
 
    ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
@@ -186,7 +100,7 @@ int main(void)
       nk_style_set_font(ctx, &fonts[0].font->handle);
    }
 
-   set_style(ctx, THEME_BLUE);
+   set_style(ctx);
 
    background = nk_rgb(38, 50, 56);
     while (!glfwWindowShouldClose(win))
@@ -214,7 +128,7 @@ int main(void)
          sidebar_spacer(ctx, 32);
          sidebar_row(ctx, 4, "Settings", true, &fonts[3], (void*)test);
 
-         reset_style(ctx);
+         set_style(ctx);
       }
       nk_end(ctx);
 

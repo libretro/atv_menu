@@ -15,31 +15,104 @@
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
 #define LEN(a) (sizeof(a)/sizeof(a)[0])
 
-struct mui_icon
+/* structs */
+struct atv_icon
 {
    struct nk_image normal;
    struct nk_image selected;
    struct nk_image hover;
 };
 
-struct mui_font
+struct atv_font
 {
    struct nk_font *font;
    int    height;
 };
 
-enum nk_style_colors_custom {
+/* enums */
+enum atv_color_enum {
     NK_COLOR_TEXT_HOVER,
     NK_COLOR_TEXT_ACTIVE,
     NK_COLOR_CUSTOM_COUNT,
 };
 
-struct nk_color table[NK_COLOR_COUNT];
-struct nk_color colors_custom[NK_COLOR_CUSTOM_COUNT];
+/* globals */
+struct nk_color atv_colors[NK_COLOR_COUNT];
+struct nk_color atv_colors_custom[NK_COLOR_CUSTOM_COUNT];
 
-struct mui_icon sidebar_icons[10];
-struct mui_font fonts[7];
+struct atv_icon sidebar_icons[10];
+struct atv_font fonts[7];
 
+/* helpers */
+static void set_style(struct nk_context *ctx)
+{
+   atv_colors[NK_COLOR_TEXT] = nk_rgba(158, 158, 158, 255);
+   atv_colors[NK_COLOR_WINDOW] = nk_rgba(57, 67, 71, 215);
+   atv_colors[NK_COLOR_HEADER] = nk_rgba(51, 51, 56, 220);
+   atv_colors[NK_COLOR_BORDER] = nk_rgba(46, 46, 46, 255);
+   atv_colors[NK_COLOR_BUTTON] = nk_rgba(255, 112, 67, 255);
+   atv_colors[NK_COLOR_BUTTON_HOVER] = nk_rgba(58, 93, 121, 255);
+   atv_colors[NK_COLOR_BUTTON_ACTIVE] = nk_rgba(63, 98, 126, 255);
+   atv_colors[NK_COLOR_TOGGLE] = nk_rgba(50, 58, 61, 255);
+   atv_colors[NK_COLOR_TOGGLE_HOVER] = nk_rgba(45, 53, 56, 255);
+   atv_colors[NK_COLOR_TOGGLE_CURSOR] = nk_rgba(48, 83, 111, 255);
+   atv_colors[NK_COLOR_SELECT] = nk_rgba(57, 67, 61, 255);
+   atv_colors[NK_COLOR_SELECT_ACTIVE] = nk_rgba(48, 83, 111, 255);
+   atv_colors[NK_COLOR_SLIDER] = nk_rgba(50, 58, 61, 255);
+   atv_colors[NK_COLOR_SLIDER_CURSOR] = nk_rgba(48, 83, 111, 245);
+   atv_colors[NK_COLOR_SLIDER_CURSOR_HOVER] = nk_rgba(53, 88, 116, 255);
+   atv_colors[NK_COLOR_SLIDER_CURSOR_ACTIVE] = nk_rgba(58, 93, 121, 255);
+   atv_colors[NK_COLOR_PROPERTY] = nk_rgba(50, 58, 61, 255);
+   atv_colors[NK_COLOR_EDIT] = nk_rgba(50, 58, 61, 225);
+   atv_colors[NK_COLOR_EDIT_CURSOR] = nk_rgba(210, 210, 210, 255);
+   atv_colors[NK_COLOR_COMBO] = nk_rgba(50, 58, 61, 255);
+   atv_colors[NK_COLOR_CHART] = nk_rgba(50, 58, 61, 255);
+   atv_colors[NK_COLOR_CHART_COLOR] = nk_rgba(48, 83, 111, 255);
+   atv_colors[NK_COLOR_CHART_COLOR_HIGHLIGHT] = nk_rgba(255, 0, 0, 255);
+   atv_colors[NK_COLOR_SCROLLBAR] = nk_rgba(50, 58, 61, 255);
+   atv_colors[NK_COLOR_SCROLLBAR_CURSOR] = nk_rgba(48, 83, 111, 255);
+   atv_colors[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(53, 88, 116, 255);
+   atv_colors[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(58, 93, 121, 255);
+   atv_colors[NK_COLOR_TAB_HEADER] = nk_rgba(48, 83, 111, 255);
+   nk_style_from_table(ctx, atv_colors);
+   atv_colors_custom[NK_COLOR_TEXT_HOVER] = nk_rgba(255, 255, 255, 255);
+   atv_colors_custom[NK_COLOR_TEXT_ACTIVE] = nk_rgba(0, 0, 0, 255);
+   nk_style_set_font(ctx, &fonts[0].font->handle);
+   ctx->style.button.text_alignment = NK_TEXT_ALIGN_CENTERED;
+}
+
+static struct nk_image icon_load(const char *filename)
+{
+   int x,y,n;
+   GLuint tex;
+   unsigned char *data = stbi_load(filename, &x, &y, &n, 0);
+
+   glGenTextures(1, &tex);
+   glBindTexture(GL_TEXTURE_2D, tex);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+   glGenerateMipmap(GL_TEXTURE_2D);
+   stbi_image_free(data);
+   return nk_image_id((int)tex);
+}
+
+static bool atv_icon_load(struct atv_icon *icon, const char *filename)
+{
+   char buf[256];
+   fflush(stdout);
+   snprintf(buf, sizeof(buf), "png/%s_idle.png", filename);
+   icon->normal = icon_load(buf);
+   snprintf(buf, sizeof(buf), "png/%s_active.png", filename);
+   icon->selected = icon_load(buf);
+   snprintf(buf, sizeof(buf), "png/%s_hover.png", filename);
+   icon->hover = icon_load(buf);
+   fflush(stdout);
+}
+
+/* widgets */
 static int sidebar_button(struct nk_context *ctx, int img_idx, 
    char* label, bool image, struct nk_font* font, void *data)
 {
@@ -74,7 +147,7 @@ static void sidebar_spacer(struct nk_context *ctx, int height)
 }
 
 static void sidebar_row(struct nk_context *ctx, int img_idx, char* label, 
-   bool image, struct mui_font* f, void *data)
+   bool image, struct atv_font* f, void *data)
 {
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
    nk_layout_row_end(ctx);
@@ -87,14 +160,14 @@ static void sidebar_row(struct nk_context *ctx, int img_idx, char* label,
 }
 
 
-int sidebar_button_text(struct nk_context *ctx, struct mui_icon img,
+int sidebar_button_text(struct nk_context *ctx, struct atv_icon img,
     const char *text, int len, nk_flags align);
 
 void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     const struct nk_rect *bounds, const struct nk_rect *label,
     const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
     const char *str, int len, const struct nk_user_font *font,
-    struct mui_icon *icon)
+    struct atv_icon *icon)
 {
     struct nk_text text;
     struct nk_image *img;
@@ -108,13 +181,13 @@ void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     if (state & NK_WIDGET_STATE_HOVER)
     {
         text.text = style->text_hover;
-        text.text = colors_custom[NK_COLOR_TEXT_HOVER];
+        text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
         img = &icon->hover;
     }
     else if (state & NK_WIDGET_STATE_ACTIVED)
     {
         text.text = style->text_active;
-        text.text = colors_custom[NK_COLOR_TEXT_ACTIVE];
+        text.text = atv_colors_custom[NK_COLOR_TEXT_ACTIVE];
         img = &icon->selected;
     }
     else text.text = style->text_normal;
@@ -126,7 +199,7 @@ void sidebar_draw_button_text_image(struct nk_command_buffer *out,
 
 int sidebar_do_button_text_styled(nk_flags *state,
     struct nk_command_buffer *out, struct nk_rect bounds,
-    struct mui_icon img, const char* str, int len, nk_flags align,
+    struct atv_icon img, const char* str, int len, nk_flags align,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
     const struct nk_user_font *font, const struct nk_input *in)
 {
@@ -161,7 +234,7 @@ int sidebar_do_button_text_styled(nk_flags *state,
 }
 
 int sidebar_button_text_styled(struct nk_context *ctx,
-    const struct nk_style_button *style, struct mui_icon img, const char *text,
+    const struct nk_style_button *style, struct atv_icon img, const char *text,
     int len, nk_flags align)
 {
     struct nk_window *win;
@@ -188,6 +261,6 @@ int sidebar_button_text_styled(struct nk_context *ctx,
             style, ctx->style.font, in);
 }
 
-int sidebar_button_text(struct nk_context *ctx, struct mui_icon img,
+int sidebar_button_text(struct nk_context *ctx, struct atv_icon img,
     const char *text, int len, nk_flags align)
 {return sidebar_button_text_styled(ctx, &ctx->style.button, img, text, len, align);}
