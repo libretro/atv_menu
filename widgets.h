@@ -22,6 +22,12 @@ struct mui_icon
    struct nk_image hover;
 };
 
+struct mui_font
+{
+   struct nk_font *font;
+   int    height;
+};
+
 enum nk_style_colors_custom {
     NK_COLOR_TEXT_HOVER,
     NK_COLOR_CUSTOM_COUNT,
@@ -31,6 +37,7 @@ struct nk_color table[NK_COLOR_COUNT];
 struct nk_color colors_custom[NK_COLOR_CUSTOM_COUNT];
 
 struct mui_icon sidebar_icons[10];
+struct mui_font fonts[7];
 
 int sidebar_button_text(struct nk_context *ctx, struct mui_icon img,
     const char *text, int len, nk_flags align);
@@ -59,12 +66,12 @@ void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     else if (state & NK_WIDGET_STATE_ACTIVED)
     {
         text.text = style->text_active;
-        img = &icon->hover;
+        img = &icon->selected;
     }
     else text.text = style->text_normal;
 
-    text.padding = nk_vec2(0,0);
-    nk_widget_text(out, *label, str, len, &text, NK_TEXT_CENTERED, font);
+    text.padding = nk_vec2(font->height * 1.5 ,0);
+    nk_widget_text(out, *label, str, len, &text, NK_TEXT_LEFT, font);
     nk_draw_image(out, *image, img, nk_white);
 }
 
