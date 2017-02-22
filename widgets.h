@@ -113,55 +113,6 @@ static bool atv_icon_load(struct atv_icon *icon, const char *filename)
 }
 
 /* widgets */
-static int sidebar_button(struct nk_context *ctx, int img_idx, 
-   char* label, bool image, struct nk_font* font, void *data)
-{
-   nk_style_set_font(ctx, &font->handle);
-   if (image)
-   {
-      if (sidebar_button_text(ctx, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT))
-         printf("hello");
-   }
-   else
-   {
-      if (nk_button_label(ctx, label))
-         printf("hello");
-   }
-}
-
-static void sidebar_placeholder(struct nk_context *ctx)
-{
-   ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
-   ctx->style.button.border_color = nk_rgba(0,0,0,0);
-   nk_button_text(ctx, "", 0);
-}
-
-static void sidebar_spacer(struct nk_context *ctx, int height)
-{
-   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
-   nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
-   nk_layout_row_push(ctx, 1.0f);
-   sidebar_placeholder(ctx);
-   nk_layout_row_end(ctx);
-}
-
-static void sidebar_row(struct nk_context *ctx, int img_idx, char* label, 
-   bool image, struct atv_font* f, void *data)
-{
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
-   nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.5f, 2);
-   nk_layout_row_push(ctx, 0.05f);
-   sidebar_placeholder(ctx);
-   nk_layout_row_push(ctx, 0.95f);
-   sidebar_button(ctx, img_idx, label, image, f->font, data);
-   nk_layout_row_end(ctx);
-}
-
-
-int sidebar_button_text(struct nk_context *ctx, struct atv_icon img,
-    const char *text, int len, nk_flags align);
 
 void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     const struct nk_rect *bounds, const struct nk_rect *label,
@@ -263,4 +214,52 @@ int sidebar_button_text_styled(struct nk_context *ctx,
 
 int sidebar_button_text(struct nk_context *ctx, struct atv_icon img,
     const char *text, int len, nk_flags align)
-{return sidebar_button_text_styled(ctx, &ctx->style.button, img, text, len, align);}
+{
+   return sidebar_button_text_styled(ctx, &ctx->style.button, img, text, len, align);
+}
+
+static int sidebar_button(struct nk_context *ctx, int img_idx, 
+   char* label, bool image, struct nk_font* font, void *data)
+{
+   nk_style_set_font(ctx, &font->handle);
+   if (image)
+   {
+      if (sidebar_button_text(ctx, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT))
+         printf("hello");
+   }
+   else
+   {
+      if (nk_button_label(ctx, label))
+         printf("hello");
+   }
+}
+
+static void sidebar_placeholder(struct nk_context *ctx)
+{
+   ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
+   ctx->style.button.border_color = nk_rgba(0,0,0,0);
+   nk_button_text(ctx, "", 0);
+}
+
+static void sidebar_spacer(struct nk_context *ctx, int height)
+{
+   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
+   nk_layout_row_push(ctx, 1.0f);
+   sidebar_placeholder(ctx);
+   nk_layout_row_end(ctx);
+}
+
+static void sidebar_row(struct nk_context *ctx, int img_idx, char* label, 
+   bool image, struct atv_font* f, void *data)
+{
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.5f, 2);
+   nk_layout_row_push(ctx, 0.05f);
+   sidebar_placeholder(ctx);
+   nk_layout_row_push(ctx, 0.95f);
+   sidebar_button(ctx, img_idx, label, image, f->font, data);
+   nk_layout_row_end(ctx);
+}

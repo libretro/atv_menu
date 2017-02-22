@@ -110,7 +110,7 @@ int main(void)
       nk_glfw3_new_frame();
 
       /* sidebar */
-      nk_begin(ctx, "Sidebar", nk_rect(0, 0, WINDOW_WIDTH * 30 / 100, WINDOW_HEIGHT),NULL);
+      nk_begin(ctx, "Sidebar", nk_rect(0, 0, WINDOW_WIDTH * 30 / 100, WINDOW_HEIGHT), 0);
       {
          ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
          ctx->style.button.hover = nk_style_item_color(nk_rgba(0,0,0,0));
