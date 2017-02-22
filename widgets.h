@@ -225,12 +225,12 @@ static int sidebar_button(struct nk_context *ctx, int img_idx,
    if (image)
    {
       if (sidebar_button_text(ctx, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT))
-         cb;
+         cb();
    }
    else
    {
       if (nk_button_label(ctx, label))
-         cb;
+         cb();
    }
 }
 

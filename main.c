@@ -83,6 +83,7 @@ int main(void)
    atv_icon_load(&sidebar_icons[2], "list");
    atv_icon_load(&sidebar_icons[3], "folder");
    atv_icon_load(&sidebar_icons[4], "settings");
+   atv_icon_load(&sidebar_icons[5], "exit");
    //sidebar_icons[0].normal = icon_load("png/search_hover.png");
 
    ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
@@ -128,6 +129,7 @@ int main(void)
          sidebar_row(ctx, 3, "File Browser", true, &fonts[3], test);
          sidebar_spacer(ctx, 32);
          sidebar_row(ctx, 4, "Settings", true, &fonts[3], test);
+         sidebar_row(ctx, 5, "Exit", true, &fonts[3], exit);
 
          set_style(ctx);
       }
