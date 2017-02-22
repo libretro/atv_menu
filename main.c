@@ -37,9 +37,10 @@
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
 #define LEN(a) (sizeof(a)/sizeof(a)[0])
 
-void test()
+void test(void)
 {
-   exit(1);
+   printf("test");
+   fflush(stdout);
 }
 
 static void error_callback(int e, const char *d)
