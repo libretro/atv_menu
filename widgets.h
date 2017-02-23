@@ -287,9 +287,10 @@ static void sidebar_spacer(struct nk_context *ctx, int height)
 /* ----------------- */
 
 void content_entry_draw_button_text_image(struct nk_command_buffer *out,
-    const struct nk_rect *bounds, const struct nk_rect *label,
+    const struct nk_rect *bounds, const struct nk_rect *label, const struct nk_rect *sublabel,
     const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
-    const char *str, int len, const struct nk_user_font *font,
+    const char *str1, int len1, const char *str2, int len2,
+    const struct nk_user_font *font1, const struct nk_user_font *font2,
     struct nk_image *img)
 {
     struct nk_text text;
@@ -313,25 +314,30 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     else text.text = style->text_normal;
     
     nk_draw_image(out, *image, img, nk_white);
-    nk_widget_text(out, *label, str, len, &text, NK_TEXT_LEFT, font);
+    nk_widget_text(out, *label, str1, len1, &text, NK_TEXT_LEFT, font1);
+    nk_widget_text(out, *sublabel, str2, len2, &text, NK_TEXT_LEFT, font2);
 }
 
 int content_entry_do_button_text_styled(nk_flags *state,
     struct nk_command_buffer *out, struct nk_rect bounds,
-    struct nk_image img, const char* str, int len, 
+    struct nk_image img, const char* str1, int len1, 
+    const char* str2, int len2,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
-    const struct nk_user_font *font, const struct nk_input *in)
+    const struct nk_user_font *font1, const struct nk_user_font *font2,
+    const struct nk_input *in)
 {
     int ret;
     struct nk_rect icon;
     struct nk_rect content;
     struct nk_rect label;
+    struct nk_rect sublabel;
 
     NK_ASSERT(style);
     NK_ASSERT(state);
-    NK_ASSERT(font);
+    NK_ASSERT(font1);
+    NK_ASSERT(font2);
     NK_ASSERT(out);
-    if (!out || !font || !style || !str)
+    if (!out || !font1 || !font2 || !style || !str1)
         return nk_false;
 
     ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
@@ -343,18 +349,24 @@ int content_entry_do_button_text_styled(nk_flags *state,
     
     label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
     label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
-    label.w = bounds.w;
-    label.h = 20;
+    label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
+    label.h = font1->height;
+
+    sublabel.x = bounds.x + style->padding.x + style->image_padding.x + 6;
+    sublabel.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6 + label.h + 6;
+    sublabel.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
+    sublabel.h = font2->height;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    content_entry_draw_button_text_image(out, &bounds, &label, &icon, *state, style, str, len, font, &img);
+    content_entry_draw_button_text_image(out, &bounds, &label, &sublabel, &icon, *state, style, str1, len1, str2, len2, font1, font2, &img);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
 
 int content_button_text_styled(struct nk_context *ctx,
-    const struct nk_style_button *style, struct nk_image img, const char *text,
-    int len)
+    struct nk_image img, const char *label,
+    int len_label, const char* sublabel, int len_sublabel,
+    struct nk_user_font *font_label, struct nk_user_font *font_sublabel)
 {
     struct nk_window *win;
     struct nk_panel *layout;
@@ -376,15 +388,16 @@ int content_button_text_styled(struct nk_context *ctx,
     if (!state) return 0;
     in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
     return content_entry_do_button_text_styled(&ctx->last_widget_state, &win->buffer,
-            bounds, img, text, len, ctx->button_behavior,
-            style, ctx->style.font, in);
+            bounds, img, label, len_label, sublabel, len_sublabel, ctx->button_behavior,
+            &ctx->style.button, font_label, font_sublabel, in);
 }
 
 static int content_button(struct nk_context *ctx, char* label, struct nk_font* f1,
    char* sublabel, struct nk_font* f2, struct nk_image img, void (*cb)(void))
 {
-   nk_style_set_font(ctx, &f1->handle);
-   if (content_button_text_styled(ctx, &ctx->style.button, img, label, strlen(label)))
+   //nk_style_set_font(ctx, &f1->handle);
+   if (content_button_text_styled(ctx, img, label, strlen(label), 
+      sublabel, strlen(sublabel), &f1->handle, &f2->handle))
       cb();
 }
 
