@@ -111,7 +111,7 @@ int main(void)
       {
          /* no borders, and no selection colors for the sidebar */
          ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
-         ctx->style.button.hover = nk_style_item_color(nk_rgba(0,0,0,0));
+         ctx->style.button.hover  = nk_style_item_color(nk_rgba(0,0,0,0));
          ctx->style.button.active = nk_style_item_color(nk_rgba(0,0,0,0));
          ctx->style.button.border_color = nk_rgba(0,0,0,0);
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
@@ -136,13 +136,12 @@ int main(void)
       { 
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
-         ctx->style.button.hover = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
-         ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+         ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+         ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON]);
          ctx->style.button.border_color = nk_rgba(0,0,0,0);
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          content_title(ctx, "History", &fonts[6]);
-         //nk_group_begin(ctx, "", NK_WINDOW_NO_SCROLLBAR);
          {
             nk_layout_row_dynamic(ctx, 280, 4);
             content_entry(ctx, "Super Metroid", "Super Nintendo Entertainment System", &fonts[2], &fonts[1], test_entry, test);
