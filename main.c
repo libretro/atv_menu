@@ -109,6 +109,7 @@ int main(void)
       /* sidebar */
       nk_begin(ctx, "Sidebar", nk_rect(0, 0, WINDOW_WIDTH * 30 / 100, WINDOW_HEIGHT), 0);
       {
+         /* no borders, and no selection colors for the sidebar */
          ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
          ctx->style.button.hover = nk_style_item_color(nk_rgba(0,0,0,0));
          ctx->style.button.active = nk_style_item_color(nk_rgba(0,0,0,0));
@@ -117,14 +118,14 @@ int main(void)
 
          sidebar_placeholder(ctx);
          sidebar_spacer(ctx, 32);
-         sidebar_row(ctx, 0, "", true, &fonts[6], test);
+         sidebar_entry(ctx, 0, "", true, &fonts[6], test);
          sidebar_spacer(ctx, 32);
-         sidebar_row(ctx, 1, "History", true, &fonts[3], test);
-         sidebar_row(ctx, 2, "Collections", true, &fonts[3], test);
-         sidebar_row(ctx, 3, "File Browser", true, &fonts[3], test);
+         sidebar_entry(ctx, 1, "History", true, &fonts[3], test);
+         sidebar_entry(ctx, 2, "Collections", true, &fonts[3], test);
+         sidebar_entry(ctx, 3, "File Browser", true, &fonts[3], test);
          sidebar_spacer(ctx, 32);
-         sidebar_row(ctx, 4, "Settings", true, &fonts[3], test);
-         sidebar_row(ctx, 5, "Exit", true, &fonts[3], exit);
+         sidebar_entry(ctx, 4, "Settings", true, &fonts[3], test);
+         sidebar_entry(ctx, 5, "Exit", true, &fonts[3], exit);
 
          set_style(ctx);
       }
@@ -134,6 +135,12 @@ int main(void)
       nk_begin(ctx, "History", nk_rect(WINDOW_WIDTH * 30 / 100 + 1, 0, WINDOW_WIDTH * 70 / 100, WINDOW_HEIGHT), 0);
       { 
          set_style(ctx);
+         ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
+         ctx->style.button.hover = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+         ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+         ctx->style.button.border_color = nk_rgba(0,0,0,0);
+         ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+
          content_title(ctx, "History", &fonts[6]);
          //nk_group_begin(ctx, "", NK_WINDOW_NO_SCROLLBAR);
          {
@@ -147,14 +154,6 @@ int main(void)
             content_entry(ctx, "Label 7", "Sublabel 7", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 8", "Sublabel 8", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 9", "Sublabel 9", &fonts[2], &fonts[1], color_bars, test);
-   /*         content_entry(ctx, "Label a", "Sublabel a", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label b", "Sublabel b", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label c", "Sublabel c", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label d", "Sublabel d", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label e", "Sublabel e", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label f", "Sublabel f", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label g", "Sublabel g", &fonts[2], &fonts[1], color_bars, test);*/
-            //nk_group_end(ctx);
             set_style(ctx);
          }
       }

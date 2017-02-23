@@ -238,19 +238,13 @@ int sidebar_button_text_styled(struct nk_context *ctx,
             style, ctx->style.font, in);
 }
 
-int sidebar_button_text(struct nk_context *ctx, struct atv_icon img,
-    const char *text, int len, nk_flags align)
-{
-   return sidebar_button_text_styled(ctx, &ctx->style.button, img, text, len, align);
-}
-
 static int sidebar_button(struct nk_context *ctx, int img_idx, 
    char* label, bool image, struct nk_font* font, void (*cb)(void))
 {
    nk_style_set_font(ctx, &font->handle);
    if (image)
    {
-      if (sidebar_button_text(ctx, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT))
+      if (sidebar_button_text_styled(ctx, &ctx->style.button, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT))
          cb();
    }
    else
@@ -267,17 +261,7 @@ static void sidebar_placeholder(struct nk_context *ctx)
    nk_button_text(ctx, "", 0);
 }
 
-static void sidebar_spacer(struct nk_context *ctx, int height)
-{
-   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
-   nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
-   nk_layout_row_push(ctx, 1.0f);
-   sidebar_placeholder(ctx);
-   nk_layout_row_end(ctx);
-}
-
-static void sidebar_row(struct nk_context *ctx, int img_idx, char* label, 
+static void sidebar_entry(struct nk_context *ctx, int img_idx, char* label, 
    bool image, struct atv_font* f, void (*cb)(void))
 {
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 1);
@@ -290,30 +274,125 @@ static void sidebar_row(struct nk_context *ctx, int img_idx, char* label,
    nk_layout_row_end(ctx);
 }
 
-static int content_button(struct nk_context *ctx, struct nk_image img, void (*cb)(void))
+static void sidebar_spacer(struct nk_context *ctx, int height)
 {
-   if (nk_button_image(ctx, img))
-      cb();
+   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, height, 1);
+   nk_layout_row_push(ctx, 1.0f);
+   sidebar_placeholder(ctx);
+   nk_layout_row_end(ctx);
 }
 
-static void content_title(struct nk_context *ctx, char* label, 
-   struct atv_font* f)
+/* ----------------- */
+
+void content_entry_draw_button_text_image(struct nk_command_buffer *out,
+    const struct nk_rect *bounds, const struct nk_rect *label,
+    const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
+    const char *str, int len, const struct nk_user_font *font,
+    struct nk_image *img)
 {
-   set_style(ctx);
-   nk_style_set_font(ctx, &f->font->handle);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
-   nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
-   nk_layout_row_push(ctx, 0.95f);
-   nk_label(ctx, label, NK_TEXT_ALIGN_RIGHT);
-   nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
-   nk_layout_row_end(ctx);
+    struct nk_text text;
+    const struct nk_style_item *background;
+    background = nk_draw_button(out, bounds, state, style);
+
+    /* select correct colors */
+    if (background->type == NK_STYLE_ITEM_COLOR)
+        text.background = background->data.color;
+    else text.background = style->text_background;
+    if (state & NK_WIDGET_STATE_HOVER)
+    {
+        text.text = style->text_hover;
+        text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
+    }
+    else if (state & NK_WIDGET_STATE_ACTIVED)
+    {
+        text.text = style->text_active;
+        text.text = atv_colors_custom[NK_COLOR_TEXT_ACTIVE];
+    }
+    else text.text = style->text_normal;
+    
+    nk_draw_image(out, *image, img, nk_white);
+    nk_widget_text(out, *label, str, len, &text, NK_TEXT_LEFT, font);
+}
+
+int content_entry_do_button_text_styled(nk_flags *state,
+    struct nk_command_buffer *out, struct nk_rect bounds,
+    struct nk_image img, const char* str, int len, 
+    enum nk_button_behavior behavior, const struct nk_style_button *style,
+    const struct nk_user_font *font, const struct nk_input *in)
+{
+    int ret;
+    struct nk_rect icon;
+    struct nk_rect content;
+    struct nk_rect label;
+
+    NK_ASSERT(style);
+    NK_ASSERT(state);
+    NK_ASSERT(font);
+    NK_ASSERT(out);
+    if (!out || !font || !style || !str)
+        return nk_false;
+
+    ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
+    icon.x = bounds.x + style->padding.x + style->image_padding.x + 6;
+    icon.y = bounds.y + style->padding.y + style->image_padding.y + 6;
+    icon.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;
+    /* 1.45 is steam grid image aspect ratio */
+    icon.h = icon.w / 1.45;
+    
+    label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
+    label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
+    label.w = bounds.w;
+    label.h = 20;
+
+    if (style->draw_begin) style->draw_begin(out, style->userdata);
+    content_entry_draw_button_text_image(out, &bounds, &label, &icon, *state, style, str, len, font, &img);
+    if (style->draw_end) style->draw_end(out, style->userdata);
+    return ret;
+}
+
+int content_button_text_styled(struct nk_context *ctx,
+    const struct nk_style_button *style, struct nk_image img, const char *text,
+    int len)
+{
+    struct nk_window *win;
+    struct nk_panel *layout;
+    const struct nk_input *in;
+
+    struct nk_rect bounds;
+    enum nk_widget_layout_states state;
+
+    NK_ASSERT(ctx);
+    NK_ASSERT(ctx->current);
+    NK_ASSERT(ctx->current->layout);
+    if (!ctx || !ctx->current || !ctx->current->layout)
+        return 0;
+
+    win = ctx->current;
+    layout = win->layout;
+
+    state = nk_widget(&bounds, ctx);
+    if (!state) return 0;
+    in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
+    return content_entry_do_button_text_styled(&ctx->last_widget_state, &win->buffer,
+            bounds, img, text, len, ctx->button_behavior,
+            style, ctx->style.font, in);
+}
+
+static int content_button(struct nk_context *ctx, char* label, struct nk_font* f1,
+   char* sublabel, struct nk_font* f2, struct nk_image img, void (*cb)(void))
+{
+   nk_style_set_font(ctx, &f1->handle);
+   if (content_button_text_styled(ctx, &ctx->style.button, img, label, strlen(label)))
+      cb();
 }
 
 static void content_entry(struct nk_context *ctx, char* label, char *sublabel, 
    struct atv_font *f1, struct atv_font *f2, struct nk_image img, void (*cb)(void))
 {
+   content_button(ctx, label, f1->font, sublabel, f2->font, img, cb);
+   /*
    nk_group_begin(ctx, "", NK_WINDOW_NO_SCROLLBAR);
    {
       nk_layout_row_begin(ctx, NK_DYNAMIC, 200, 1);
@@ -332,5 +411,19 @@ static void content_entry(struct nk_context *ctx, char* label, char *sublabel,
       nk_layout_row_end(ctx);
       nk_group_end(ctx);
       set_style(ctx);
-   }
+   }*/
+}
+
+static void content_title(struct nk_context *ctx, char* label, 
+   struct atv_font* f)
+{
+   nk_style_set_font(ctx, &f->font->handle);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
+   nk_layout_row_push(ctx, 0.95f);
+   nk_label(ctx, label, NK_TEXT_ALIGN_RIGHT);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
+   nk_layout_row_end(ctx);
 }
