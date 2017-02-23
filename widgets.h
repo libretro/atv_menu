@@ -405,26 +405,6 @@ static void content_entry(struct nk_context *ctx, char* label, char *sublabel,
    struct atv_font *f1, struct atv_font *f2, struct nk_image img, void (*cb)(void))
 {
    content_button(ctx, label, f1->font, sublabel, f2->font, img, cb);
-   /*
-   nk_group_begin(ctx, "", NK_WINDOW_NO_SCROLLBAR);
-   {
-      nk_layout_row_begin(ctx, NK_DYNAMIC, 200, 1);
-      nk_layout_row_push(ctx, 0.0f);
-      content_button(ctx, img, cb);
-      nk_layout_row_end(ctx);
-      nk_layout_row_begin(ctx, NK_DYNAMIC, f1->height * 1.5, 1);
-      nk_layout_row_push(ctx, 0.0f);
-      nk_style_set_font(ctx, &f1->font->handle);
-      nk_label(ctx, label, NK_TEXT_ALIGN_LEFT);
-      nk_layout_row_end(ctx);
-      nk_layout_row_begin(ctx, NK_DYNAMIC, f1->height * 1.5, 1);
-      nk_layout_row_push(ctx, 0.0f);
-      nk_style_set_font(ctx, &f2->font->handle);
-      nk_label(ctx, sublabel, NK_TEXT_ALIGN_LEFT);
-      nk_layout_row_end(ctx);
-      nk_group_end(ctx);
-      set_style(ctx);
-   }*/
 }
 
 static void content_title(struct nk_context *ctx, char* label, 
