@@ -131,15 +131,32 @@ int main(void)
       nk_end(ctx);
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
-      nk_begin(ctx, "Content", nk_rect(WINDOW_WIDTH * 30 / 100 + 1, 0, WINDOW_WIDTH * 70 / 100, WINDOW_HEIGHT), 0);
+      nk_begin(ctx, "History", nk_rect(WINDOW_WIDTH * 30 / 100 + 1, 0, WINDOW_WIDTH * 70 / 100, WINDOW_HEIGHT), 0);
       { 
          set_style(ctx);
-         nk_layout_row_dynamic(ctx, 280, 4);
-         content_entry(ctx, "Super Metroid", "Super Nintendo Entertainment System", &fonts[2], &fonts[1], test_entry, test);
-         content_entry(ctx, "Label 2", "Sublabel 2", &fonts[2], &fonts[1], color_bars, test);
-         content_entry(ctx, "Label 3", "Sublabel 3", &fonts[2], &fonts[1], color_bars, test);
-         content_entry(ctx, "Label 4", "Sublabel 4", &fonts[2], &fonts[1], color_bars, test);
-         set_style(ctx);
+         content_title(ctx, "History", &fonts[6]);
+         //nk_group_begin(ctx, "", NK_WINDOW_NO_SCROLLBAR);
+         {
+            nk_layout_row_dynamic(ctx, 280, 4);
+            content_entry(ctx, "Super Metroid", "Super Nintendo Entertainment System", &fonts[2], &fonts[1], test_entry, test);
+            content_entry(ctx, "Label 2", "Sublabel 2", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 3", "Sublabel 3", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 4", "Sublabel 4", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 5", "Sublabel 5", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 6", "Sublabel 6", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 7", "Sublabel 7", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 8", "Sublabel 8", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 9", "Sublabel 9", &fonts[2], &fonts[1], color_bars, test);
+   /*         content_entry(ctx, "Label a", "Sublabel a", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label b", "Sublabel b", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label c", "Sublabel c", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label d", "Sublabel d", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label e", "Sublabel e", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label f", "Sublabel f", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label g", "Sublabel g", &fonts[2], &fonts[1], color_bars, test);*/
+            //nk_group_end(ctx);
+            set_style(ctx);
+         }
       }
       nk_end(ctx);
 

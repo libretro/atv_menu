@@ -296,6 +296,21 @@ static int content_button(struct nk_context *ctx, struct nk_image img, void (*cb
       cb();
 }
 
+static void content_title(struct nk_context *ctx, char* label, 
+   struct atv_font* f)
+{
+   set_style(ctx);
+   nk_style_set_font(ctx, &f->font->handle);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
+   nk_layout_row_push(ctx, 0.95f);
+   nk_label(ctx, label, NK_TEXT_ALIGN_RIGHT);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
+   nk_layout_row_end(ctx);
+}
+
 static void content_entry(struct nk_context *ctx, char* label, char *sublabel, 
    struct atv_font *f1, struct atv_font *f2, struct nk_image img, void (*cb)(void))
 {
@@ -318,5 +333,4 @@ static void content_entry(struct nk_context *ctx, char* label, char *sublabel,
       nk_group_end(ctx);
       set_style(ctx);
    }
-
 }
