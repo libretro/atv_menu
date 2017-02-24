@@ -99,6 +99,15 @@ int main(void)
 
    set_style(ctx);
 
+   bool sidebar_active = false;
+   int  sidebar_width = WINDOW_WIDTH * 25 / 100;
+   bool content_view_active = false;
+   int  content_view_width = WINDOW_WIDTH * 75 / 100 - 1;
+   int  content_title_height = WINDOW_HEIGHT * 10 / 100;
+   int  content_view_position_x = WINDOW_WIDTH * 25 / 100 + 1;
+   int  content_view_position_y = content_title_height + 1;
+
+
    background = nk_rgb(38, 50, 56);
     while (!glfwWindowShouldClose(win))
     {
@@ -107,7 +116,7 @@ int main(void)
       nk_glfw3_new_frame();
 
       /* sidebar */
-      nk_begin(ctx, "Sidebar", nk_rect(0, 0, WINDOW_WIDTH * 30 / 100, WINDOW_HEIGHT), 0);
+      nk_begin(ctx, "Sidebar", nk_rect(0, 0, sidebar_width, WINDOW_HEIGHT), 0);
       {
          /* no borders, and no selection colors for the sidebar */
          ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
@@ -132,7 +141,7 @@ int main(void)
       nk_end(ctx);
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
-      nk_begin(ctx, "History", nk_rect(WINDOW_WIDTH * 30 / 100 + 1, 0, WINDOW_WIDTH * 70 / 100, WINDOW_HEIGHT), 0);
+      nk_begin(ctx, "Header", nk_rect(content_view_position_x, 0, content_view_width, content_title_height), 0);
       { 
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
@@ -142,17 +151,32 @@ int main(void)
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          content_title(ctx, "History", &fonts[6]);
+         set_style(ctx);
+      }
+      nk_end(ctx);
+
+      ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
+      nk_begin(ctx, "History", nk_rect(content_view_position_x, content_view_position_y, content_view_width, WINDOW_HEIGHT - content_title_height), 0);
+      { 
+         set_style(ctx);
+         ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
+         ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+         ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON]);
+         ctx->style.button.border_color = nk_rgba(0,0,0,0);
+         ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+
          {
-            nk_layout_row_dynamic(ctx, 280, 4);
+            int items = 10;
+            nk_layout_row_static(ctx, 260, 280, items);
             content_entry(ctx, "Super Metroid", "Super Nintendo Entertainment System", &fonts[2], &fonts[1], test_entry, test);
-            content_entry(ctx, "Label 2", "Sublabel 2", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 3", "Sublabel 3", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 4", "Sublabel 4", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 5", "Sublabel 5", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 6", "Sublabel 6", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 7", "Sublabel 7", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 8", "Sublabel 8", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 9", "Sublabel 9", &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 2", "Sublabel 2",  &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 3", "Sublabel 3",  &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 4", "Sublabel 4",  &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 5", "Sublabel 5",  &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 6", "Sublabel 6",  &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 7", "Sublabel 7",  &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 8", "Sublabel 8",  &fonts[2], &fonts[1], color_bars, test);
+            content_entry(ctx, "Label 9", "Sublabel 9",  &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 10", "Sublabel 10", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 11", "Sublabel 11", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 12", "Sublabel 12", &fonts[2], &fonts[1], color_bars, test);

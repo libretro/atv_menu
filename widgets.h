@@ -82,10 +82,10 @@ static void set_style(struct nk_context *ctx)
    atv_colors[NK_COLOR_CHART] = nk_rgba(50, 58, 61, 255);
    atv_colors[NK_COLOR_CHART_COLOR] = nk_rgba(48, 83, 111, 255);
    atv_colors[NK_COLOR_CHART_COLOR_HIGHLIGHT] = nk_rgba(255, 0, 0, 255);
-   atv_colors[NK_COLOR_SCROLLBAR] = nk_rgba(50, 58, 61, 255);
-   atv_colors[NK_COLOR_SCROLLBAR_CURSOR] = nk_rgba(48, 83, 111, 255);
-   atv_colors[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(53, 88, 116, 255);
-   atv_colors[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(58, 93, 121, 255);
+   atv_colors[NK_COLOR_SCROLLBAR] = nk_rgba(50, 58, 61, 0);
+   atv_colors[NK_COLOR_SCROLLBAR_CURSOR] = nk_rgba(48, 83, 111, 0);
+   atv_colors[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(53, 88, 116, 50);
+   atv_colors[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(58, 93, 121, 100);
    atv_colors[NK_COLOR_TAB_HEADER] = nk_rgba(48, 83, 111, 255);
    nk_style_from_table(ctx, atv_colors);
    atv_colors_custom[NK_COLOR_TEXT_HOVER] = nk_rgba(255, 255, 255, 255);
