@@ -104,7 +104,7 @@ int main(void)
    bool content_view_active = false;
    int  content_view_width = WINDOW_WIDTH * 75 / 100 - 1;
    int  content_title_height = WINDOW_HEIGHT * 10 / 100;
-   int  content_view_position_x = WINDOW_WIDTH * 25 / 100 + 1;
+   int  content_view_position_x = sidebar_width + 1;
    int  content_view_position_y = content_title_height + 1;
 
 
@@ -135,7 +135,8 @@ int main(void)
          sidebar_spacer(ctx, 32);
          sidebar_entry(ctx, 4, "Settings", true, &fonts[3], test);
          sidebar_entry(ctx, 5, "Exit", true, &fonts[3], exit);
-
+         sidebar_active = true;
+         content_view_active = false;
          set_style(ctx);
       }
       nk_end(ctx);
@@ -166,7 +167,7 @@ int main(void)
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          {
-            int items = 10;
+            int items = content_view_width / 260;
             nk_layout_row_static(ctx, 260, 280, items);
             content_entry(ctx, "Super Metroid", "Super Nintendo Entertainment System", &fonts[2], &fonts[1], test_entry, test);
             content_entry(ctx, "Label 2", "Sublabel 2",  &fonts[2], &fonts[1], color_bars, test);
@@ -185,11 +186,22 @@ int main(void)
             content_entry(ctx, "Label 15", "Sublabel 15", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 16", "Sublabel 16", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 17", "Sublabel 17", &fonts[2], &fonts[1], color_bars, test);
-
+            sidebar_active = false;
+            content_view_active = true;
             set_style(ctx);
          }
       }
       nk_end(ctx);
+
+      if (content_view_active)
+      {
+         if (sidebar_width > 10)
+         {
+            sidebar_width --;
+            content_view_width ++;
+            content_view_position_x = sidebar_width + 1;
+         }
+      }
 
       {
          float bg[4];
