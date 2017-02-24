@@ -75,6 +75,19 @@ enum atv_sidebar_entries {
    SIDEBAR_COUNT,
 };
 
+struct sidebar_entry
+{
+   int id;
+   char name [256];
+   char label[256];
+   char icon [256];
+};
+
+struct sidebar_entries
+{
+   int count;
+   struct sidebar_entry entries[20];
+};
 
 /* globals */
 struct nk_color atv_colors[NK_COLOR_COUNT];
