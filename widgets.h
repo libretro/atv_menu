@@ -60,18 +60,19 @@ enum atv_color_enum {
    NK_COLOR_CUSTOM_COUNT,
 };
 
+#define SIDEBAR_NULL -1
+
 enum atv_sidebar_entries {
-   ICN_SIDEBAR_SEARCH,
-   ICN_SIDEBAR_HISTORY,
-   ICN_SIDEBAR_FILES,
-   ICN_SIDEBAR_NETPLAY,
-   ICN_SIDEBAR_SETTINGS,
-   ICN_SIDEBAR_TOOLS,
-   ICN_SIDEBAR_EXIT,
-   ICN_SIDEBAR_PLAYLISTS,
-   ICN_PLAYLIST_GBA,
-   ICN_PLAYLIST_SNES,
-   ICN_SIDEBAR_COUNT,
+   SIDEBAR_SEARCH,
+   SIDEBAR_HISTORY,
+   SIDEBAR_FOLDERS,
+   SIDEBAR_NETPLAY,
+   SIDEBAR_SETTINGS,
+   SIDEBAR_TOOLS,
+   SIDEBAR_EXIT,
+   PLAYLIST_GBA,
+   PLAYLIST_SNES,
+   SIDEBAR_COUNT,
 };
 
 
@@ -155,17 +156,16 @@ static bool atv_icon_load(struct atv_icon *icon, const char *filename)
 
 static void sidebar_icon_load()
 {
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_SEARCH], "search_fab");
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_HISTORY], "history");
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_PLAYLISTS], "list");
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_FILES], "folder");
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_SETTINGS], "settings");
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_EXIT], "exit");
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_TOOLS], "tools");
-   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_NETPLAY], "netplay");
+   atv_icon_load(&sidebar_icons[SIDEBAR_SEARCH], "search_fab");
+   atv_icon_load(&sidebar_icons[SIDEBAR_HISTORY], "history");
+   atv_icon_load(&sidebar_icons[SIDEBAR_FOLDERS], "folder");
+   atv_icon_load(&sidebar_icons[SIDEBAR_SETTINGS], "settings");
+   atv_icon_load(&sidebar_icons[SIDEBAR_EXIT], "exit");
+   atv_icon_load(&sidebar_icons[SIDEBAR_TOOLS], "tools");
+   atv_icon_load(&sidebar_icons[SIDEBAR_NETPLAY], "netplay");
 
-   atv_icon_load(&sidebar_icons[ICN_PLAYLIST_SNES], "snes");
-   atv_icon_load(&sidebar_icons[ICN_PLAYLIST_GBA], "gba");
+   atv_icon_load(&sidebar_icons[PLAYLIST_SNES], "snes");
+   atv_icon_load(&sidebar_icons[PLAYLIST_GBA], "gba");
 
    color_bars = icon_load("png/color_bars.png");
    test_entry = icon_load("png/test.png");

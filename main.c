@@ -199,28 +199,28 @@ int main(void)
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          sidebar_spacer(ctx, 8);
-         sidebar_entry(ctx, ICN_SIDEBAR_SEARCH, 
+         sidebar_entry(ctx, SIDEBAR_SEARCH, 
             "", true, &fonts[6], active, test);
          sidebar_spacer(ctx, 16);
-         sidebar_entry(ctx, ICN_SIDEBAR_HISTORY, 
+         sidebar_entry(ctx, SIDEBAR_HISTORY, 
             "History", true, &fonts[3], active, test);
-         sidebar_entry(ctx, ICN_SIDEBAR_FILES, 
+         sidebar_entry(ctx, SIDEBAR_FOLDERS, 
             "File Browser", true, &fonts[3], active, test);
-         sidebar_entry(ctx, ICN_SIDEBAR_NETPLAY, 
+         sidebar_entry(ctx, SIDEBAR_NETPLAY, 
             "Netplay Rooms", true, &fonts[3], active, test);
          sidebar_spacer(ctx, 16);
-         sidebar_entry(ctx, ICN_SIDEBAR_SETTINGS, 
+         sidebar_entry(ctx, SIDEBAR_SETTINGS, 
             "Settings", true, &fonts[3], active, test);
-         sidebar_entry(ctx, ICN_SIDEBAR_TOOLS, 
+         sidebar_entry(ctx, SIDEBAR_TOOLS, 
             "Tools", true, &fonts[3], active, test);
-         sidebar_entry(ctx, ICN_SIDEBAR_EXIT, 
+         sidebar_entry(ctx, SIDEBAR_EXIT, 
             "Exit", true, &fonts[3], active, exit);
          sidebar_spacer(ctx, 16);
-         sidebar_entry(ctx, ICN_SIDEBAR_PLAYLISTS, 
-            "Collections", false, &fonts[3], active + 1, test);
-         sidebar_entry(ctx, ICN_PLAYLIST_GBA, 
+         sidebar_entry(ctx, SIDEBAR_NULL,
+            "Collections", false, &fonts[3], active, test);
+         sidebar_entry(ctx, PLAYLIST_GBA, 
             "Gameboy Advance", true, &fonts[3], active, test);
-         sidebar_entry(ctx, ICN_PLAYLIST_SNES, 
+         sidebar_entry(ctx, PLAYLIST_SNES, 
             "Super Nintendo", true, &fonts[3], active, test);
          set_style(ctx);
 
@@ -233,7 +233,7 @@ int main(void)
          }
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_DOWN))
          {
-            active = MIN(active+1, ICN_SIDEBAR_COUNT-1);
+            active = MIN(active+1, SIDEBAR_COUNT-1);
             lock_keys = true;
          }
       }
