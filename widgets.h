@@ -37,21 +37,26 @@ enum atv_color_enum {
    NK_COLOR_CUSTOM_COUNT,
 };
 
-enum atv_sidebar_icons {
+enum atv_sidebar_entries {
    ICN_SIDEBAR_SEARCH,
    ICN_SIDEBAR_HISTORY,
-   ICN_SIDEBAR_PLAYLISTS,
    ICN_SIDEBAR_FILES,
+   ICN_SIDEBAR_NETPLAY,
    ICN_SIDEBAR_SETTINGS,
+   ICN_SIDEBAR_TOOLS,
    ICN_SIDEBAR_EXIT,
+   ICN_SIDEBAR_PLAYLISTS,
+   ICN_PLAYLIST_GBA,
+   ICN_PLAYLIST_SNES,
    ICN_SIDEBAR_COUNT,
 };
+
 
 /* globals */
 struct nk_color atv_colors[NK_COLOR_COUNT];
 struct nk_color atv_colors_custom[NK_COLOR_CUSTOM_COUNT];
 
-struct atv_icon sidebar_icons[10];
+struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
 
 struct nk_image color_bars, test_entry;
@@ -133,6 +138,11 @@ static void sidebar_icon_load()
    atv_icon_load(&sidebar_icons[ICN_SIDEBAR_FILES], "folder");
    atv_icon_load(&sidebar_icons[ICN_SIDEBAR_SETTINGS], "settings");
    atv_icon_load(&sidebar_icons[ICN_SIDEBAR_EXIT], "exit");
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_TOOLS], "tools");
+   atv_icon_load(&sidebar_icons[ICN_SIDEBAR_NETPLAY], "netplay");
+
+   atv_icon_load(&sidebar_icons[ICN_PLAYLIST_SNES], "snes");
+   atv_icon_load(&sidebar_icons[ICN_PLAYLIST_GBA], "gba");
 
    color_bars = icon_load("png/color_bars.png");
    test_entry = icon_load("png/test.png");
@@ -144,7 +154,7 @@ void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     const struct nk_rect *bounds, const struct nk_rect *label,
     const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
     const char *str, int len, const struct nk_user_font *font,
-    struct atv_icon *icon)
+    struct atv_icon *icon, bool active)
 {
     struct nk_text text;
     struct nk_image *img;
@@ -155,7 +165,7 @@ void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     if (background->type == NK_STYLE_ITEM_COLOR)
         text.background = background->data.color;
     else text.background = style->text_background;
-    if (state & NK_WIDGET_STATE_HOVER)
+    if (state & NK_WIDGET_STATE_HOVER || active)
     {
         text.text = style->text_hover;
         text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
@@ -178,7 +188,7 @@ int sidebar_do_button_text_styled(nk_flags *state,
     struct nk_command_buffer *out, struct nk_rect bounds,
     struct atv_icon img, const char* str, int len, nk_flags align,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
-    const struct nk_user_font *font, const struct nk_input *in)
+    const struct nk_user_font *font, const struct nk_input *in, bool active)
 {
     int ret;
     struct nk_rect icon;
@@ -205,14 +215,14 @@ int sidebar_do_button_text_styled(nk_flags *state,
     icon.h -= 2 * style->image_padding.y;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    sidebar_draw_button_text_image(out, &bounds, &content, &icon, *state, style, str, len, font, &img);
+    sidebar_draw_button_text_image(out, &bounds, &content, &icon, *state, style, str, len, font, &img, active);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
 
 int sidebar_button_text_styled(struct nk_context *ctx,
     const struct nk_style_button *style, struct atv_icon img, const char *text,
-    int len, nk_flags align)
+    int len, nk_flags align, bool active)
 {
     struct nk_window *win;
     struct nk_panel *layout;
@@ -235,16 +245,16 @@ int sidebar_button_text_styled(struct nk_context *ctx,
     in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
     return sidebar_do_button_text_styled(&ctx->last_widget_state, &win->buffer,
             bounds, img, text, len, align, ctx->button_behavior,
-            style, ctx->style.font, in);
+            style, ctx->style.font, in, active);
 }
 
 static int sidebar_button(struct nk_context *ctx, int img_idx, 
-   char* label, bool image, struct nk_font* font, void (*cb)(void))
+   char* label, bool image, struct nk_font* font, bool active, void (*cb)(void))
 {
    nk_style_set_font(ctx, &font->handle);
    if (image)
    {
-      if (sidebar_button_text_styled(ctx, &ctx->style.button, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT))
+      if (sidebar_button_text_styled(ctx, &ctx->style.button, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT, active))
          cb();
    }
    else
@@ -262,15 +272,15 @@ static void sidebar_placeholder(struct nk_context *ctx)
 }
 
 static void sidebar_entry(struct nk_context *ctx, int img_idx, char* label, 
-   bool image, struct atv_font* f, void (*cb)(void))
+   bool image, struct atv_font* f, int active, void (*cb)(void))
 {
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 1);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height / 2, 1);
    nk_layout_row_end(ctx);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 2);
    nk_layout_row_push(ctx, 0.05f);
    sidebar_placeholder(ctx);
    nk_layout_row_push(ctx, 0.95f);
-   sidebar_button(ctx, img_idx, label, image, f->font, cb);
+   sidebar_button(ctx, img_idx, label, image, f->font, active == img_idx, cb);
    nk_layout_row_end(ctx);
 }
 

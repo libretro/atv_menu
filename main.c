@@ -52,6 +52,9 @@ int main(void)
    int width = 0, height = 0;
    struct nk_context *ctx;
    struct nk_color background;
+   static int frames = 0;
+   static int active = 0;
+   glfwSwapInterval(1);
 
    glfwSetErrorCallback(error_callback);
    if (!glfwInit())
@@ -108,33 +111,10 @@ int main(void)
    background = nk_rgb(38, 50, 56);
     while (!glfwWindowShouldClose(win))
     {
+      frames ++;
       /* Input */
       glfwPollEvents();
       nk_glfw3_new_frame();
-
-      /* sidebar */
-      nk_begin(ctx, "Sidebar", nk_rect(0, 0, sidebar_width, WINDOW_HEIGHT), 0);
-      {
-         /* no borders, and no selection colors for the sidebar */
-         ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
-         ctx->style.button.hover  = nk_style_item_color(nk_rgba(0,0,0,0));
-         ctx->style.button.active = nk_style_item_color(nk_rgba(0,0,0,0));
-         ctx->style.button.border_color = nk_rgba(0,0,0,0);
-         ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
-
-         sidebar_placeholder(ctx);
-         sidebar_spacer(ctx, 32);
-         sidebar_entry(ctx, 0, "", true, &fonts[6], test);
-         sidebar_spacer(ctx, 32);
-         sidebar_entry(ctx, 1, "History", true, &fonts[3], test);
-         sidebar_entry(ctx, 2, "Collections", true, &fonts[3], test);
-         sidebar_entry(ctx, 3, "File Browser", true, &fonts[3], test);
-         sidebar_spacer(ctx, 32);
-         sidebar_entry(ctx, 4, "Settings", true, &fonts[3], test);
-         sidebar_entry(ctx, 5, "Exit", true, &fonts[3], exit);
-         set_style(ctx);
-      }
-      nk_end(ctx);
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
       nk_begin(ctx, "Header", nk_rect(WINDOW_WIDTH * 20 / 100 + 1, 0, WINDOW_WIDTH * 80 / 100 - 1, content_title_height), 0);
@@ -184,6 +164,58 @@ int main(void)
             set_style(ctx);
          }
       }
+      nk_end(ctx);
+      static bool lock_keys = false;
+      nk_begin(ctx, "Sidebar", nk_rect(0, 0, sidebar_width, WINDOW_HEIGHT), 0);
+      {
+         /* no borders, and no selection colors for the sidebar */
+         ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
+         ctx->style.button.hover  = nk_style_item_color(nk_rgba(0,0,0,0));
+         ctx->style.button.active = nk_style_item_color(nk_rgba(0,0,0,0));
+         ctx->style.button.border_color = nk_rgba(0,0,0,0);
+         ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+
+         sidebar_spacer(ctx, 8);
+         sidebar_entry(ctx, ICN_SIDEBAR_SEARCH, 
+            "", true, &fonts[6], active, test);
+         sidebar_spacer(ctx, 16);
+         sidebar_entry(ctx, ICN_SIDEBAR_HISTORY, 
+            "History", true, &fonts[3], active, test);
+         sidebar_entry(ctx, ICN_SIDEBAR_FILES, 
+            "File Browser", true, &fonts[3], active, test);
+         sidebar_entry(ctx, ICN_SIDEBAR_NETPLAY, 
+            "Netplay Rooms", true, &fonts[3], active, test);
+         sidebar_spacer(ctx, 16);
+         sidebar_entry(ctx, ICN_SIDEBAR_SETTINGS, 
+            "Settings", true, &fonts[3], active, test);
+         sidebar_entry(ctx, ICN_SIDEBAR_TOOLS, 
+            "Tools", true, &fonts[3], active, test);
+         sidebar_entry(ctx, ICN_SIDEBAR_EXIT, 
+            "Exit", true, &fonts[3], active, exit);
+         sidebar_spacer(ctx, 16);
+         sidebar_entry(ctx, ICN_SIDEBAR_PLAYLISTS, 
+            "Collections", false, &fonts[3], active + 1, test);
+         sidebar_entry(ctx, ICN_PLAYLIST_GBA, 
+            "Gameboy Advance", true, &fonts[3], active, test);
+         sidebar_entry(ctx, ICN_PLAYLIST_SNES, 
+            "Super Nintendo", true, &fonts[3], active, test);
+         set_style(ctx);
+
+         const struct nk_input *in = &ctx->input;
+
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_UP))
+         {
+            active = MAX(0, active-1);
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_DOWN))
+         {
+            active = MIN(active+1, ICN_SIDEBAR_COUNT-1);
+            lock_keys = true;
+         }
+      }
+      if (frames % 16 == 0)
+         lock_keys = false;
       nk_end(ctx);
 
       const int delta = 60;
