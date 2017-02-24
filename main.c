@@ -137,7 +137,7 @@ int main(void)
       nk_end(ctx);
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
-      nk_begin(ctx, "Header", nk_rect(content_view_position_x, 0, content_view_width, content_title_height), 0);
+      nk_begin(ctx, "Header", nk_rect(WINDOW_WIDTH * 20 / 100 + 1, 0, WINDOW_WIDTH * 80 / 100 - 1, content_title_height), 0);
       { 
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
