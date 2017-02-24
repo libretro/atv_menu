@@ -294,7 +294,7 @@ static void sidebar_placeholder(struct nk_context *ctx)
    nk_button_text(ctx, "", 0);
 }
 
-static void sidebar_entry(struct nk_context *ctx, int img_idx, char* label, 
+static void sidebar_entry_widget(struct nk_context *ctx, int img_idx, char* label, 
    bool image, struct atv_font* f, int active, void (*cb)(void))
 {
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height / 2, 1);
