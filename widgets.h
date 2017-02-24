@@ -62,7 +62,7 @@ enum atv_color_enum {
 
 #define SIDEBAR_NULL -1
 
-enum atv_sidebar_entries {
+enum old_sidebar_entries {
    SIDEBAR_SEARCH,
    SIDEBAR_HISTORY,
    SIDEBAR_FOLDERS,
@@ -75,7 +75,7 @@ enum atv_sidebar_entries {
    SIDEBAR_COUNT,
 };
 
-struct sidebar_entry
+struct atv_sidebar_entry
 {
    int id;
    char name [256];
@@ -83,10 +83,10 @@ struct sidebar_entry
    char icon [256];
 };
 
-struct sidebar_entries
+struct atv_sidebar_entries
 {
    int count;
-   struct sidebar_entry entries[20];
+   struct atv_sidebar_entry entry[20];
 };
 
 /* globals */
@@ -95,6 +95,7 @@ struct nk_color atv_colors_custom[NK_COLOR_CUSTOM_COUNT];
 
 struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
+struct atv_sidebar_entries entries;
 
 struct nk_image color_bars, test_entry;
 
@@ -154,7 +155,7 @@ static struct nk_image icon_load(const char *filename)
    return nk_image_id((int)tex);
 }
 
-static bool atv_icon_load(struct atv_icon *icon, const char *filename)
+static bool atv_sidebar_icon_load(struct atv_icon *icon, const char *filename)
 {
    char buf[256];
    fflush(stdout);
@@ -169,16 +170,17 @@ static bool atv_icon_load(struct atv_icon *icon, const char *filename)
 
 static void sidebar_icon_load()
 {
-   atv_icon_load(&sidebar_icons[SIDEBAR_SEARCH], "search_fab");
-   atv_icon_load(&sidebar_icons[SIDEBAR_HISTORY], "history");
-   atv_icon_load(&sidebar_icons[SIDEBAR_FOLDERS], "folder");
-   atv_icon_load(&sidebar_icons[SIDEBAR_SETTINGS], "settings");
-   atv_icon_load(&sidebar_icons[SIDEBAR_EXIT], "exit");
-   atv_icon_load(&sidebar_icons[SIDEBAR_TOOLS], "tools");
-   atv_icon_load(&sidebar_icons[SIDEBAR_NETPLAY], "netplay");
 
-   atv_icon_load(&sidebar_icons[PLAYLIST_SNES], "snes");
-   atv_icon_load(&sidebar_icons[PLAYLIST_GBA], "gba");
+   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_SEARCH], "search_fab");
+   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_HISTORY], "history");
+   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_FOLDERS], "folder");
+   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_SETTINGS], "settings");
+   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_EXIT], "exit");
+   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_TOOLS], "tools");
+   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_NETPLAY], "netplay");
+
+   atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_SNES], "snes");
+   atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_GBA], "gba");
 
    color_bars = icon_load("png/color_bars.png");
    test_entry = icon_load("png/test.png");
