@@ -64,20 +64,7 @@ enum atv_color_enum {
 
 #define SIDEBAR_NULL -1
 
-enum old_sidebar_entries {
-   SIDEBAR_SEARCH,
-   SIDEBAR_HISTORY,
-   SIDEBAR_FOLDERS,
-   SIDEBAR_NETPLAY,
-   SIDEBAR_SETTINGS,
-   SIDEBAR_TOOLS,
-   SIDEBAR_EXIT,
-   PLAYLIST_GBA,
-   PLAYLIST_SNES,
-   SIDEBAR_COUNT,
-};
-
-struct atv_sidebar_entry
+struct atv_menu_entry
 {
    int id;
    char name      [MAX_SIZE];
@@ -88,11 +75,11 @@ struct atv_sidebar_entry
    bool spacer;
 };
 
-struct atv_sidebar_entries
+struct atv_menu_entries
 {
    int count;
    int offset;
-   struct atv_sidebar_entry entry[20];
+   struct atv_menu_entry entry[20];
 };
 
 /* globals */
@@ -101,8 +88,8 @@ struct nk_color atv_colors_custom[NK_COLOR_CUSTOM_COUNT];
 
 struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
-struct atv_sidebar_entries menu_entries;
-struct atv_sidebar_entries playlist_entries;
+struct atv_menu_entries menu_entries;
+struct atv_menu_entries playlist_entries;
 
 struct nk_image color_bars, test_entry;
 
@@ -175,7 +162,7 @@ static bool atv_sidebar_data_load(struct atv_icon *icon, const char *filename)
    fflush(stdout);
 }
 
-static void sidebar_entry_add(struct atv_sidebar_entries* entries, 
+static void sidebar_entry_add(struct atv_menu_entries* entries, 
    int index, const char* name, const char* label, const char *icon, 
    int font_size, bool spacer)
 {
@@ -312,8 +299,8 @@ int sidebar_button_text_styled(struct nk_context *ctx,
             style, ctx->style.font, in, active);
 }
 
-static int sidebar_button(struct nk_context *ctx, struct atv_sidebar_entry *entry, 
-   bool active, void (*cb)(struct atv_sidebar_entry *entry))
+static int sidebar_button(struct nk_context *ctx, struct atv_menu_entry *entry, 
+   bool active, void (*cb)(struct atv_menu_entry *entry))
 {
    nk_style_set_font(ctx, &fonts[entry->font].font->handle);
    if (sidebar_button_text_styled(ctx, &ctx->style.button, entry->icon, entry->label, strlen(entry->label), NK_TEXT_RIGHT, active))
@@ -327,8 +314,8 @@ static void sidebar_placeholder(struct nk_context *ctx)
    nk_button_text(ctx, "", 0);
 }
 
-static void sidebar_entry_widget(struct nk_context *ctx, struct atv_sidebar_entry *entry, 
-   int active, int offset, void (*cb)(struct atv_sidebar_entry *entry))
+static void sidebar_entry_widget(struct nk_context *ctx, struct atv_menu_entry *entry, 
+   int active, int offset, void (*cb)(struct atv_menu_entry *entry))
 {
    nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entry->font].height / 2, 1);
    nk_layout_row_end(ctx);
