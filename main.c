@@ -188,12 +188,26 @@ int main(void)
          ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON]);
          ctx->style.button.border_color = nk_rgba(0,0,0,0);
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+
+         int i;
+         /* setup row layout */
+         nk_layout_row_template_begin(ctx, 220);
+         nk_layout_row_template_push_dynamic(ctx);
+         for (i=0; i < items; i++)
+            nk_layout_row_template_push_variable(ctx, 280);
+         nk_layout_row_template_push_dynamic(ctx);
+         nk_layout_row_template_end(ctx);
+
+         /* do your widgets */
+         i = 0;
+         for (int j=1; j <= 1 + history_entries.count / items; j++)
          {
-            nk_layout_row_static(ctx, 220, 280, items);
-            for (int i=0; i < history_entries.count; i++)
+            nk_spacing(ctx, 1);
+            for (; i < items * j && i < history_entries.count; i++)
                content_entry_widget(ctx, &history_entries.entry[i], content_current_id, activate && nk_window_is_active(ctx, "Content"), items, history_entry_cb);
-            set_style(ctx);
+            nk_spacing(ctx, 1);
          }
+
          content_entries = history_entries.count;
       }
       nk_end(ctx);

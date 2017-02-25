@@ -225,24 +225,24 @@ static void dummy_data_load()
 
    content_entry_add(&history_entries, 0,  "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
    content_entry_add(&history_entries, 1,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
-   content_entry_add(&history_entries, 2,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 3,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 4,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 5,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 6,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 7,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 8,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 9,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 10, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 11, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 12, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 13, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 14, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 15, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 16, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 17, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 18, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 19, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);;
+   content_entry_add(&history_entries, 2,  "Dummy 1",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 3,  "Dummy 2",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 4,  "Dummy 3",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 5,  "Dummy 4",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 6,  "Dummy 5",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 7,  "Dummy 6",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 8,  "Dummy 7",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 9,  "Dummy 8",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 10, "Dummy 9",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 11, "Dummy 10",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 12, "Dummy 11",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 13, "Dummy 12",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 14, "Dummy 13",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 15, "Dummy 14",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 16, "Dummy 15",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 17, "Dummy 16",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 18, "Dummy 17",                              "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 19, "Dummy 18",                              "Dummy Data",      "png/color_bars.png", 2, 1);;
 }
 
 /* widgets */
