@@ -104,7 +104,7 @@ int main(void)
       exit(1);
    }
 
-   sidebar_icon_load();
+   sidebar_data_load();
 
    ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
    /* Load Fonts: if none of these are loaded a default font will be used  */
@@ -205,6 +205,12 @@ int main(void)
             if (menu_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
+         for (int i=0; i < playlist_entries.count; i++)
+         {
+            sidebar_entry_widget(ctx, playlist_entries.entry[i].id, &playlist_entries, active, test);
+            if (playlist_entries.entry[i].spacer)
+               sidebar_spacer(ctx, 16);
+         }
          /*
           sidebar_entry_widget(ctx, PLAYLIST_GBA, 
             "Gameboy Advance", true, &fonts[3], active, test);
@@ -221,7 +227,7 @@ int main(void)
          }
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_DOWN))
          {
-            active = MIN(active+1, menu_entries.count - 1);
+            active = MIN(active+1, menu_entries.count + playlist_entries.count - 1);
             lock_keys = true;
          }
       }

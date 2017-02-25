@@ -91,6 +91,7 @@ struct atv_sidebar_entry
 struct atv_sidebar_entries
 {
    int count;
+   int offset;
    struct atv_sidebar_entry entry[20];
 };
 
@@ -161,7 +162,7 @@ static struct nk_image icon_load(const char *filename)
    return nk_image_id((int)tex);
 }
 
-static bool atv_sidebar_icon_load(struct atv_icon *icon, const char *filename)
+static bool atv_sidebar_data_load(struct atv_icon *icon, const char *filename)
 {
    char buf[256];
    fflush(stdout);
@@ -187,7 +188,7 @@ static void sidebar_entry_add(struct atv_sidebar_entries* entries,
    entries->count ++;
 }
 
-static void sidebar_icon_load()
+static void sidebar_data_load()
 {
    sidebar_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
    sidebar_entry_add(&menu_entries, 1,  "history",  "History",       "history",    3, false);
@@ -198,11 +199,14 @@ static void sidebar_icon_load()
    sidebar_entry_add(&menu_entries, 6,  "exit",     "Exit",          "exit",       3, true);
 
    for (int i = 0;  i < menu_entries.count; i++)
-      atv_sidebar_icon_load(&menu_entries.entry[i].icon, menu_entries.entry[i].icon_path);
+      atv_sidebar_data_load(&menu_entries.entry[i].icon, menu_entries.entry[i].icon_path);
 
+   playlist_entries.offset = menu_entries.count;
+   sidebar_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
+   sidebar_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
 
-   atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_SNES], "snes");
-   atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_GBA], "gba");
+   for (int i = 0;  i < playlist_entries.count; i++)
+      atv_sidebar_data_load(&playlist_entries.entry[i].icon, playlist_entries.entry[i].icon_path);
 
    color_bars = icon_load("png/color_bars.png");
    test_entry = icon_load("png/test.png");
@@ -331,7 +335,7 @@ static void sidebar_entry_widget(struct nk_context *ctx, int id, struct atv_side
    nk_layout_row_push(ctx, 0.05f);
    sidebar_placeholder(ctx);
    nk_layout_row_push(ctx, 0.95f);
-   sidebar_button(ctx, entries->entry[id].label, entries->entry[id].icon, fonts[entries->entry[id].font].font, active == id, cb);
+   sidebar_button(ctx, entries->entry[id].label, entries->entry[id].icon, fonts[entries->entry[id].font].font, active == id + entries->offset, cb);
    nk_layout_row_end(ctx);
 }
 
