@@ -177,10 +177,10 @@ int main(void)
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          {
-            int items = content_view_width / 260;
-            nk_layout_row_static(ctx, 260, 280, items);
-            content_entry(ctx, "Super Metroid", "Super Nintendo Entertainment System", &fonts[2], &fonts[1], test_entry, test);
-            content_entry(ctx, "Label 2", "Sublabel 2",  &fonts[2], &fonts[1], color_bars, test);
+            int items = content_view_width / 280;
+            nk_layout_row_static(ctx, 220, 280, items);
+            content_entry(ctx, "Legend of Zelda: The Minish Cap", "Nintendo Gameboy Advance", &fonts[2], &fonts[1], test_entry, test);
+            content_entry(ctx, "Legend of Zelda: A Link to the Past", "Super Nintendo Entertainment System",  &fonts[2], &fonts[1], test_entry2, test);
             content_entry(ctx, "Label 3", "Sublabel 3",  &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 4", "Sublabel 4",  &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 5", "Sublabel 5",  &fonts[2], &fonts[1], color_bars, test);
@@ -195,7 +195,6 @@ int main(void)
             content_entry(ctx, "Label 14", "Sublabel 14", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 15", "Sublabel 15", &fonts[2], &fonts[1], color_bars, test);
             content_entry(ctx, "Label 16", "Sublabel 16", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 17", "Sublabel 17", &fonts[2], &fonts[1], color_bars, test);
             set_style(ctx);
          }
       }

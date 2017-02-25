@@ -75,11 +75,29 @@ struct atv_menu_entry
    bool spacer;
 };
 
+struct atv_content_entry
+{
+   int id;
+   char label     [MAX_SIZE];
+   char sublabel  [MAX_SIZE];
+   char icon_path [MAX_SIZE];
+   struct nk_image icon;
+   int  font_label;
+   int  font_sublabel;   
+};
+
 struct atv_menu_entries
 {
    int count;
    int offset;
-   struct atv_menu_entry entry[20];
+   struct atv_menu_entry entry[100];
+};
+
+struct atv_content_entries
+{
+   int count;
+   int columns;
+   struct atv_content_entry entry[100];
 };
 
 /* globals */
@@ -90,8 +108,9 @@ struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
 struct atv_menu_entries menu_entries;
 struct atv_menu_entries playlist_entries;
+struct atv_content_entries history_entries;
 
-struct nk_image color_bars, test_entry;
+struct nk_image color_bars, test_entry, test_entry2;
 
 /* helpers */
 static void set_style(struct nk_context *ctx)
@@ -149,7 +168,7 @@ static struct nk_image icon_load(const char *filename)
    return nk_image_id((int)tex);
 }
 
-static bool atv_sidebar_data_load(struct atv_icon *icon, const char *filename)
+static bool atv_dummy_data_load(struct atv_icon *icon, const char *filename)
 {
    char buf[256];
    fflush(stdout);
@@ -162,13 +181,27 @@ static bool atv_sidebar_data_load(struct atv_icon *icon, const char *filename)
    fflush(stdout);
 }
 
-static void sidebar_entry_add(struct atv_menu_entries* entries, 
+static void content_entry_add(struct atv_content_entries* entries,
+   int index, const char* label, const char* sublabel, const char *icon,
+   int label_size, int sublabel_size)
+{
+   snprintf(entries->entry[index].label,      MAX_SIZE, "%s", label);
+   snprintf(entries->entry[index].sublabel,   MAX_SIZE, "%s", sublabel);
+   snprintf(entries->entry[index].icon_path,  MAX_SIZE, "%s", icon);
+   entries->entry[index].font_label    = label_size;
+   entries->entry[index].font_sublabel = sublabel_size;
+   entries->entry[index].id            = index;
+   entries->count ++;
+   return;
+}
+
+static void menu_entry_add(struct atv_menu_entries* entries, 
    int index, const char* name, const char* label, const char *icon, 
    int font_size, bool spacer)
 {
-   snprintf(entries->entry[index].name,      MAX_SIZE,  "%s", name);
-   snprintf(entries->entry[index].label,     MAX_SIZE,  "%s", label);
-   snprintf(entries->entry[index].icon_path, MAX_SIZE,  "%s", icon);
+   snprintf(entries->entry[index].name,      MAX_SIZE, "%s", name);
+   snprintf(entries->entry[index].label,     MAX_SIZE, "%s", label);
+   snprintf(entries->entry[index].icon_path, MAX_SIZE, "%s", icon);
    entries->entry[index].font   = font_size;
    entries->entry[index].spacer = spacer;
    entries->entry[index].id     = index;
@@ -177,26 +210,31 @@ static void sidebar_entry_add(struct atv_menu_entries* entries,
 
 static void sidebar_data_load()
 {
-   sidebar_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
-   sidebar_entry_add(&menu_entries, 1,  "history",  "History",       "history",    3, false);
-   sidebar_entry_add(&menu_entries, 2,  "folders",  "File Browser",  "folders",    3, false);
-   sidebar_entry_add(&menu_entries, 3,  "netplay",  "Netplay Rooms", "netplay",    3, true);
-   sidebar_entry_add(&menu_entries, 4,  "settings", "Settings",      "settings",   3, false);
-   sidebar_entry_add(&menu_entries, 5,  "tools",    "Tools",         "tools",      3, false);
-   sidebar_entry_add(&menu_entries, 6,  "exit",     "Exit",          "exit",       3, true);
+   menu_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
+   menu_entry_add(&menu_entries, 1,  "history",  "History",       "history",    3, false);
+   menu_entry_add(&menu_entries, 2,  "folders",  "File Browser",  "folders",    3, false);
+   menu_entry_add(&menu_entries, 3,  "netplay",  "Netplay Rooms", "netplay",    3, true);
+   menu_entry_add(&menu_entries, 4,  "settings", "Settings",      "settings",   3, false);
+   menu_entry_add(&menu_entries, 5,  "tools",    "Tools",         "tools",      3, false);
+   menu_entry_add(&menu_entries, 6,  "exit",     "Exit",          "exit",       3, true);
 
    for (int i = 0;  i < menu_entries.count; i++)
-      atv_sidebar_data_load(&menu_entries.entry[i].icon, menu_entries.entry[i].icon_path);
+      atv_dummy_data_load(&menu_entries.entry[i].icon, menu_entries.entry[i].icon_path);
 
    playlist_entries.offset = menu_entries.count;
-   sidebar_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
-   sidebar_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
+   menu_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
+   menu_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
 
    for (int i = 0;  i < playlist_entries.count; i++)
-      atv_sidebar_data_load(&playlist_entries.entry[i].icon, playlist_entries.entry[i].icon_path);
+      atv_dummy_data_load(&playlist_entries.entry[i].icon, playlist_entries.entry[i].icon_path);
+
+   content_entry_add(&history_entries, 1, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",  2, 1);
+   content_entry_add(&history_entries, 0, "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png", 2, 1);
+   
 
    color_bars = icon_load("png/color_bars.png");
-   test_entry = icon_load("png/test.png");
+   test_entry = icon_load("png/minish.png");
+   test_entry2 = icon_load("png/alttp.png");
 }
 
 /* widgets */
@@ -367,8 +405,10 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     else text.text = style->text_normal;
     
     nk_draw_image(out, *image, img, nk_white);
-    nk_widget_text(out, *label, str1, len1, &text, NK_TEXT_LEFT, font1);
-    nk_widget_text(out, *sublabel, str2, len2, &text, NK_TEXT_LEFT, font2);
+    //nk_widget_text(out, *label, str1, len1, &text, NK_TEXT_LEFT, font1);
+    //nk_widget_text(out, *sublabel, str2, len2, &text, NK_TEXT_, font2);
+    nk_widget_text_wrap(out, *label, str1, len1, &text, font1);
+    nk_widget_text_wrap(out, *sublabel, str2, len2, &text, font2);
 }
 
 int content_entry_do_button_text_styled(nk_flags *state,
@@ -398,17 +438,17 @@ int content_entry_do_button_text_styled(nk_flags *state,
     icon.y = bounds.y + style->padding.y + style->image_padding.y + 6;
     icon.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;
     /* 1.45 is steam grid image aspect ratio */
-    icon.h = icon.w / 1.45;
+    icon.h = icon.w / 2.14;
     
     label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
     label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
     label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
-    label.h = font1->height;
+    label.h = font1->height * 2 + style->padding.y;
 
     sublabel.x = bounds.x + style->padding.x + style->image_padding.x + 6;
     sublabel.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6 + label.h + 6;
     sublabel.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
-    sublabel.h = font2->height;
+    sublabel.h = font2->height * 2 + style->padding.y;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
     content_entry_draw_button_text_image(out, &bounds, &label, &sublabel, &icon, *state, style, str1, len1, str2, len2, font1, font2, &img);
