@@ -100,7 +100,8 @@ struct nk_color atv_colors_custom[NK_COLOR_CUSTOM_COUNT];
 
 struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
-struct atv_sidebar_entries fixed_entries;
+struct atv_sidebar_entries menu_entries;
+struct atv_sidebar_entries playlist_entries;
 
 struct nk_image color_bars, test_entry;
 
@@ -173,30 +174,31 @@ static bool atv_sidebar_icon_load(struct atv_icon *icon, const char *filename)
    fflush(stdout);
 }
 
-static void sidebar_entry_add(int index, const char* name, const char* label, 
-   const char *icon, int font_size, bool spacer)
+static void sidebar_entry_add(struct atv_sidebar_entries* entries, 
+   int index, const char* name, const char* label, const char *icon, 
+   int font_size, bool spacer)
 {
-   snprintf(fixed_entries.entry[index].name,     MAX_SIZE,  "%s", name);
-   snprintf(fixed_entries.entry[index].label,     MAX_SIZE, "%s", label);
-   snprintf(fixed_entries.entry[index].icon_path,  MAX_SIZE,  "%s", icon);
-   fixed_entries.entry[index].font   = font_size;
-   fixed_entries.entry[index].spacer = spacer;
-   fixed_entries.entry[index].id     = index;
-   fixed_entries.count ++;
+   snprintf(entries->entry[index].name,      MAX_SIZE,  "%s", name);
+   snprintf(entries->entry[index].label,     MAX_SIZE,  "%s", label);
+   snprintf(entries->entry[index].icon_path, MAX_SIZE,  "%s", icon);
+   entries->entry[index].font   = font_size;
+   entries->entry[index].spacer = spacer;
+   entries->entry[index].id     = index;
+   entries->count ++;
 }
 
 static void sidebar_icon_load()
 {
-   sidebar_entry_add(0,  "search",          "",              "search_fab", 6, true);
-   sidebar_entry_add(1,  "history",         "History",       "history",    3, false);
-   sidebar_entry_add(2,  "folders",         "File Browser",  "folders",    3, false);
-   sidebar_entry_add(3,  "netplay",         "Netplay Rooms", "netplay",    3, true);
-   sidebar_entry_add(4,  "settings",        "Settings",      "settings",   3, false);
-   sidebar_entry_add(5,  "tools",           "Tools",         "tools",      3, false);
-   sidebar_entry_add(6,  "exit",            "Exit",          "exit",       3, true);
+   sidebar_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
+   sidebar_entry_add(&menu_entries, 1,  "history",  "History",       "history",    3, false);
+   sidebar_entry_add(&menu_entries, 2,  "folders",  "File Browser",  "folders",    3, false);
+   sidebar_entry_add(&menu_entries, 3,  "netplay",  "Netplay Rooms", "netplay",    3, true);
+   sidebar_entry_add(&menu_entries, 4,  "settings", "Settings",      "settings",   3, false);
+   sidebar_entry_add(&menu_entries, 5,  "tools",    "Tools",         "tools",      3, false);
+   sidebar_entry_add(&menu_entries, 6,  "exit",     "Exit",          "exit",       3, true);
 
-   for (int i = 0;  i < fixed_entries.count; i++)
-      atv_sidebar_icon_load(&fixed_entries.entry[i].icon, fixed_entries.entry[i].icon_path);
+   for (int i = 0;  i < menu_entries.count; i++)
+      atv_sidebar_icon_load(&menu_entries.entry[i].icon, menu_entries.entry[i].icon_path);
 
 
    atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_SNES], "snes");

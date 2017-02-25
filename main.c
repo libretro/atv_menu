@@ -199,10 +199,10 @@ int main(void)
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          sidebar_spacer(ctx, 8);
-         for (int i=0; i < fixed_entries.count; i++)
+         for (int i=0; i < menu_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, fixed_entries.entry[i].id, &fixed_entries, active, test);
-            if (fixed_entries.entry[i].spacer)
+            sidebar_entry_widget(ctx, menu_entries.entry[i].id, &menu_entries, active, test);
+            if (menu_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
          /*
@@ -221,7 +221,7 @@ int main(void)
          }
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_DOWN))
          {
-            active = MIN(active+1, fixed_entries.count - 1);
+            active = MIN(active+1, menu_entries.count - 1);
             lock_keys = true;
          }
       }
