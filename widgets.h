@@ -100,7 +100,7 @@ struct nk_color atv_colors_custom[NK_COLOR_CUSTOM_COUNT];
 
 struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
-struct atv_sidebar_entries entries;
+struct atv_sidebar_entries fixed_entries;
 
 struct nk_image color_bars, test_entry;
 
@@ -176,13 +176,13 @@ static bool atv_sidebar_icon_load(struct atv_icon *icon, const char *filename)
 static void sidebar_entry_add(int index, const char* name, const char* label, 
    const char *icon, int font_size, bool spacer)
 {
-   snprintf(entries.entry[index].name,     MAX_SIZE,  "%s", name);
-   snprintf(entries.entry[index].label,     MAX_SIZE, "%s", label);
-   snprintf(entries.entry[index].icon_path,  MAX_SIZE,  "%s", icon);
-   entries.entry[index].font   = font_size;
-   entries.entry[index].spacer = spacer;
-   entries.entry[index].id     = index;
-   entries.count ++;
+   snprintf(fixed_entries.entry[index].name,     MAX_SIZE,  "%s", name);
+   snprintf(fixed_entries.entry[index].label,     MAX_SIZE, "%s", label);
+   snprintf(fixed_entries.entry[index].icon_path,  MAX_SIZE,  "%s", icon);
+   fixed_entries.entry[index].font   = font_size;
+   fixed_entries.entry[index].spacer = spacer;
+   fixed_entries.entry[index].id     = index;
+   fixed_entries.count ++;
 }
 
 static void sidebar_icon_load()
@@ -195,8 +195,8 @@ static void sidebar_icon_load()
    sidebar_entry_add(5,  "tools",           "Tools",         "tools",      3, false);
    sidebar_entry_add(6,  "exit",            "Exit",          "exit",       3, true);
 
-   for (int i = 0;  i < entries.count; i++)
-      atv_sidebar_icon_load(&entries.entry[i].icon, entries.entry[i].icon_path);
+   for (int i = 0;  i < fixed_entries.count; i++)
+      atv_sidebar_icon_load(&fixed_entries.entry[i].icon, fixed_entries.entry[i].icon_path);
 
 
    atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_SNES], "snes");
@@ -321,15 +321,15 @@ static void sidebar_placeholder(struct nk_context *ctx)
    nk_button_text(ctx, "", 0);
 }
 
-static void sidebar_entry_widget(struct nk_context *ctx, int id, int active, void (*cb)(void))
+static void sidebar_entry_widget(struct nk_context *ctx, int id, struct atv_sidebar_entries* entries, int active, void (*cb)(void))
 {
-   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entries.entry[id].font].height / 2, 1);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entries->entry[id].font].height / 2, 1);
    nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entries.entry[id].font].height * 1.2f, 2);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entries->entry[id].font].height * 1.2f, 2);
    nk_layout_row_push(ctx, 0.05f);
    sidebar_placeholder(ctx);
    nk_layout_row_push(ctx, 0.95f);
-   sidebar_button(ctx, entries.entry[id].label, entries.entry[id].icon, fonts[entries.entry[id].font].font, active == id, cb);
+   sidebar_button(ctx, entries->entry[id].label, entries->entry[id].icon, fonts[entries->entry[id].font].font, active == id, cb);
    nk_layout_row_end(ctx);
 }
 
