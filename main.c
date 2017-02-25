@@ -78,6 +78,12 @@ void playlist_entry_cb(struct atv_menu_entry *entry)
    fflush(stdout);
 }
 
+void history_entry_cb(struct atv_content_entry *entry)
+{
+   printf("Do something with this: %s\n", entry->label);
+   fflush(stdout);
+}
+
 static void error_callback(int e, const char *d)
 {printf("Error %d: %s\n", e, d);}
 
@@ -180,7 +186,7 @@ int main(void)
             int items = content_view_width / 280;
             nk_layout_row_static(ctx, 220, 280, items);
             for (int i=0; i < history_entries.count; i++)
-               content_entry_widget(ctx, &history_entries.entry[i], 0, items, test);
+               content_entry_widget(ctx, &history_entries.entry[i], 0, items, history_entry_cb);
             set_style(ctx);
          }
       }

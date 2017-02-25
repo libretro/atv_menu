@@ -480,20 +480,20 @@ int content_button_text_styled(struct nk_context *ctx,
             &ctx->style.button, font_label, font_sublabel, in);
 }
 
-static int content_button(struct nk_context *ctx, char* label, struct nk_font* f1,
-   char* sublabel, struct nk_font* f2, struct nk_image img, void (*cb)(void))
+static int content_button(struct nk_context *ctx, struct atv_content_entry *entry, 
+   void (*cb)(struct atv_content_entry *entry))
 {
    //nk_style_set_font(ctx, &f1->handle);
-   if (content_button_text_styled(ctx, img, label, strlen(label), 
-      sublabel, strlen(sublabel), &f1->handle, &f2->handle))
-      cb();
+   if (content_button_text_styled(ctx, entry->icon, entry->label, strlen(entry->label), 
+      entry->sublabel, strlen(entry->sublabel), &fonts[entry->font_label].font->handle, 
+      &fonts[entry->font_sublabel].font->handle))
+      cb(entry);
 }
 
 static void content_entry_widget(struct nk_context *ctx, struct atv_content_entry* entry, 
-   int active, int columns, void (*cb)(void))
+   int active, int columns, void (*cb)(struct atv_content_entry *entry))
 {
-   content_button(ctx, entry->label, fonts[entry->font_label].font, 
-      entry->sublabel, fonts[entry->font_sublabel].font, entry->icon, cb);
+   content_button(ctx, entry, cb);
 }
 
 static void content_title(struct nk_context *ctx, char* label, 
