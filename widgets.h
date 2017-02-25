@@ -223,16 +223,26 @@ static void dummy_data_load()
    menu_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
    menu_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
 
-   content_entry_add(&history_entries, 0, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
-   content_entry_add(&history_entries, 1, "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
-   content_entry_add(&history_entries, 2, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 3, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 4, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 5, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 6, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 7, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 8, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 9, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 0,  "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
+   content_entry_add(&history_entries, 1,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
+   content_entry_add(&history_entries, 2,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 3,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 4,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 5,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 6,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 7,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 8,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 9,  "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 10, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 11, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 12, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 13, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 14, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 15, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 16, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 17, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 18, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 19, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);;
 }
 
 /* widgets */
@@ -379,7 +389,7 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
     const char *str1, int len1, const char *str2, int len2,
     const struct nk_user_font *font1, const struct nk_user_font *font2,
-    struct nk_image *img)
+    struct nk_image *img, bool active)
 {
     struct nk_text text;
     const struct nk_style_item *background;
@@ -389,7 +399,7 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     if (background->type == NK_STYLE_ITEM_COLOR)
         text.background = background->data.color;
     else text.background = style->text_background;
-    if (state & NK_WIDGET_STATE_HOVER)
+    if (state & NK_WIDGET_STATE_HOVER || active)
     {
         text.text = style->text_hover;
         text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
@@ -412,7 +422,7 @@ int content_entry_do_button_text_styled(nk_flags *state,
     const char* str2, int len2,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
     const struct nk_user_font *font1, const struct nk_user_font *font2,
-    const struct nk_input *in)
+    const struct nk_input *in, bool active)
 {
     int ret;
     struct nk_rect icon;
@@ -446,7 +456,7 @@ int content_entry_do_button_text_styled(nk_flags *state,
     sublabel.h = font2->height * 2 + style->padding.y;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    content_entry_draw_button_text_image(out, &bounds, &label, &sublabel, &icon, *state, style, str1, len1, str2, len2, font1, font2, &img);
+    content_entry_draw_button_text_image(out, &bounds, &label, &sublabel, &icon, *state, style, str1, len1, str2, len2, font1, font2, &img, active);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
@@ -454,7 +464,7 @@ int content_entry_do_button_text_styled(nk_flags *state,
 int content_button_text_styled(struct nk_context *ctx,
     struct nk_image img, const char *label,
     int len_label, const char* sublabel, int len_sublabel,
-    struct nk_user_font *font_label, struct nk_user_font *font_sublabel)
+    struct nk_user_font *font_label, struct nk_user_font *font_sublabel, bool active)
 {
     struct nk_window *win;
     struct nk_panel *layout;
@@ -477,23 +487,23 @@ int content_button_text_styled(struct nk_context *ctx,
     in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
     return content_entry_do_button_text_styled(&ctx->last_widget_state, &win->buffer,
             bounds, img, label, len_label, sublabel, len_sublabel, ctx->button_behavior,
-            &ctx->style.button, font_label, font_sublabel, in);
+            &ctx->style.button, font_label, font_sublabel, in, active);
 }
 
 static int content_button(struct nk_context *ctx, struct atv_content_entry *entry, 
-   void (*cb)(struct atv_content_entry *entry))
+   bool active, void (*cb)(struct atv_content_entry *entry))
 {
    //nk_style_set_font(ctx, &f1->handle);
    if (content_button_text_styled(ctx, entry->icon, entry->label, strlen(entry->label), 
       entry->sublabel, strlen(entry->sublabel), &fonts[entry->font_label].font->handle, 
-      &fonts[entry->font_sublabel].font->handle))
+      &fonts[entry->font_sublabel].font->handle, active))
       cb(entry);
 }
 
 static void content_entry_widget(struct nk_context *ctx, struct atv_content_entry* entry, 
    int active, int columns, void (*cb)(struct atv_content_entry *entry))
 {
-   content_button(ctx, entry, cb);
+   content_button(ctx, entry, active == entry->id, cb);
 }
 
 static void content_title(struct nk_context *ctx, char* label, 

@@ -94,7 +94,12 @@ int main(void)
    struct nk_context *ctx;
    struct nk_color background;
    static int frames = 0;
-   static int active = 0;
+   static int sidebar_current_id = 1;
+   static int content_current_id = 0;
+   static bool lock_keys = false;
+   static int items = 0;
+   static int content_entries = 0;
+
    glfwSwapInterval(1);
 
    glfwSetErrorCallback(error_callback);
@@ -160,6 +165,7 @@ int main(void)
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
       nk_begin(ctx, "Header", nk_rect(WINDOW_WIDTH * 20 / 100 + 1, 0, WINDOW_WIDTH * 80 / 100 - 1, content_title_height), 0);
       { 
+         items = content_view_width / 280;
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
          ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
@@ -173,7 +179,7 @@ int main(void)
       nk_end(ctx);
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
-      nk_begin(ctx, "History", nk_rect(content_view_position_x, content_view_position_y, content_view_width, WINDOW_HEIGHT - content_title_height), 0);
+      nk_begin(ctx, "Content", nk_rect(content_view_position_x, content_view_position_y, content_view_width, WINDOW_HEIGHT - content_title_height), 0);
       { 
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
@@ -181,17 +187,15 @@ int main(void)
          ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON]);
          ctx->style.button.border_color = nk_rgba(0,0,0,0);
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
-
          {
-            int items = content_view_width / 280;
             nk_layout_row_static(ctx, 220, 280, items);
             for (int i=0; i < history_entries.count; i++)
-               content_entry_widget(ctx, &history_entries.entry[i], 0, items, history_entry_cb);
+               content_entry_widget(ctx, &history_entries.entry[i], content_current_id, items, history_entry_cb);
             set_style(ctx);
          }
+         content_entries = history_entries.count;
       }
       nk_end(ctx);
-      static bool lock_keys = false;
       nk_begin(ctx, "Sidebar", nk_rect(0, 0, sidebar_width, WINDOW_HEIGHT), 0);
       {
          /* no borders, and no selection colors for the sidebar */
@@ -204,37 +208,23 @@ int main(void)
          sidebar_spacer(ctx, 8);
          for (int i=0; i < menu_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, &menu_entries.entry[i], active, menu_entries.offset, menu_entry_cb);
+            sidebar_entry_widget(ctx, &menu_entries.entry[i], sidebar_current_id, menu_entries.offset, menu_entry_cb);
             if (menu_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
          for (int i=0; i < playlist_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, &playlist_entries.entry[i], active, playlist_entries.offset, playlist_entry_cb);
+            sidebar_entry_widget(ctx, &playlist_entries.entry[i], sidebar_current_id, playlist_entries.offset, playlist_entry_cb);
             if (playlist_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
          set_style(ctx);
-
-         const struct nk_input *in = &ctx->input;
-
-         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_UP))
-         {
-            active = MAX(0, active - 1);
-            lock_keys = true;
-         }
-         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_DOWN))
-         {
-            active = MIN(active+1, menu_entries.count + playlist_entries.count - 1);
-            lock_keys = true;
-         }
       }
-      if (frames % 16 == 0)
-         lock_keys = false;
       nk_end(ctx);
 
+      const struct nk_input *in = &ctx->input;
       const int delta = 60;
-      if (nk_window_is_active(ctx, "History"))
+      if (nk_window_is_active(ctx, "Content"))
       {
          if (sidebar_width > 15 )
          {
@@ -247,6 +237,34 @@ int main(void)
             sidebar_width += 1;
             content_view_width -= 1;
             content_view_position_x = sidebar_width + 1;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_LEFT))
+         {
+            if (content_current_id % items == 0)
+               nk_window_set_focus(ctx, "Sidebar");
+            if (content_current_id >= 1)
+               content_current_id -= 1;
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_RIGHT))
+         {
+            if (content_current_id < content_entries)
+               content_current_id += 1;
+            else
+               content_current_id = 0;
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_UP))
+         {
+            if (content_current_id >= items)
+               content_current_id -= items;
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_DOWN))
+         {
+            if (content_current_id + items < content_entries)
+               content_current_id += items;
+            lock_keys = true;
          }
       }
       else
@@ -263,7 +281,26 @@ int main(void)
             content_view_width += 1;
             content_view_position_x = sidebar_width + 1;
          }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_UP))
+         {
+            sidebar_current_id = MAX(0, sidebar_current_id - 1);
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_DOWN))
+         {
+            sidebar_current_id = MIN(sidebar_current_id + 1, menu_entries.count + playlist_entries.count - 1);
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_RIGHT))
+         {
+            nk_window_set_focus(ctx, "Content");
+            printf("help!!!");
+            fflush(stdout);
+            lock_keys = true;
+         }
       }
+      if (frames % 16 == 0)
+         lock_keys = false;
 
       {
          float bg[4];
