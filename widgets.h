@@ -313,11 +313,11 @@ int sidebar_button_text_styled(struct nk_context *ctx,
 }
 
 static int sidebar_button(struct nk_context *ctx, char* label, struct atv_icon image, 
-   struct nk_font* font, bool active, void (*cb)(void))
+   struct nk_font* font, bool active, void (*cb)(void *data))
 {
    nk_style_set_font(ctx, &font->handle);
    if (sidebar_button_text_styled(ctx, &ctx->style.button, image, label, strlen(label), NK_TEXT_RIGHT, active))
-      cb();
+      cb((void*) label);
 }
 
 static void sidebar_placeholder(struct nk_context *ctx)
@@ -327,7 +327,7 @@ static void sidebar_placeholder(struct nk_context *ctx)
    nk_button_text(ctx, "", 0);
 }
 
-static void sidebar_entry_widget(struct nk_context *ctx, int id, struct atv_sidebar_entries* entries, int active, void (*cb)(void))
+static void sidebar_entry_widget(struct nk_context *ctx, int id, struct atv_sidebar_entries* entries, int active, void *data, void (*cb)(void *data))
 {
    nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entries->entry[id].font].height / 2, 1);
    nk_layout_row_end(ctx);

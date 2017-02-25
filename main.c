@@ -66,6 +66,12 @@ void test(void)
    fflush(stdout);
 }
 
+void menu_entry_cb(void *userdata)
+{
+   printf("Do something with this: %s\n", (char*) userdata);
+   fflush(stdout);
+}
+
 static void error_callback(int e, const char *d)
 {printf("Error %d: %s\n", e, d);}
 
@@ -201,13 +207,13 @@ int main(void)
          sidebar_spacer(ctx, 8);
          for (int i=0; i < menu_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, menu_entries.entry[i].id, &menu_entries, active, test);
+            sidebar_entry_widget(ctx, menu_entries.entry[i].id, &menu_entries, active, NULL, menu_entry_cb);
             if (menu_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
          for (int i=0; i < playlist_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, playlist_entries.entry[i].id, &playlist_entries, active, test);
+            sidebar_entry_widget(ctx, playlist_entries.entry[i].id, &playlist_entries, active, NULL, menu_entry_cb);
             if (playlist_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
