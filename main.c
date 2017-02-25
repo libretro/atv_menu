@@ -199,29 +199,17 @@ int main(void)
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          sidebar_spacer(ctx, 8);
-         sidebar_entry_widget(ctx, SIDEBAR_SEARCH, 
-            "", true, &fonts[6], active, test);
-         sidebar_spacer(ctx, 16);
-         sidebar_entry_widget(ctx, SIDEBAR_HISTORY, 
-            "History", true, &fonts[3], active, test);
-         sidebar_entry_widget(ctx, SIDEBAR_FOLDERS, 
-            "File Browser", true, &fonts[3], active, test);
-         sidebar_entry_widget(ctx, SIDEBAR_NETPLAY, 
-            "Netplay Rooms", true, &fonts[3], active, test);
-         sidebar_spacer(ctx, 16);
-         sidebar_entry_widget(ctx, SIDEBAR_SETTINGS, 
-            "Settings", true, &fonts[3], active, test);
-         sidebar_entry_widget(ctx, SIDEBAR_TOOLS, 
-            "Tools", true, &fonts[3], active, test);
-         sidebar_entry_widget(ctx, SIDEBAR_EXIT, 
-            "Exit", true, &fonts[3], active, exit);
-         sidebar_spacer(ctx, 16);
-         sidebar_entry_widget(ctx, SIDEBAR_NULL,
-            "Collections", false, &fonts[3], active, test);
-         sidebar_entry_widget(ctx, PLAYLIST_GBA, 
+         for (int i=0; i < entries.count; i++)
+         {
+            sidebar_entry_widget(ctx, entries.entry[i].id, active, test);
+            if (entries.entry[i].spacer)
+               sidebar_spacer(ctx, 16);
+         }
+         /*
+          sidebar_entry_widget(ctx, PLAYLIST_GBA, 
             "Gameboy Advance", true, &fonts[3], active, test);
          sidebar_entry_widget(ctx, PLAYLIST_SNES, 
-            "Super Nintendo", true, &fonts[3], active, test);
+            "Super Nintendo", true, &fonts[3], active, test);*/
          set_style(ctx);
 
          const struct nk_input *in = &ctx->input;

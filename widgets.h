@@ -38,6 +38,8 @@
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
 #define LEN(a) (sizeof(a)/sizeof(a)[0])
 
+#define MAX_SIZE 256
+
 /* structs */
 struct atv_icon
 {
@@ -78,9 +80,12 @@ enum old_sidebar_entries {
 struct atv_sidebar_entry
 {
    int id;
-   char name [256];
-   char label[256];
-   char icon [256];
+   char name      [MAX_SIZE];
+   char label     [MAX_SIZE];
+   char icon_path [MAX_SIZE];
+   struct atv_icon icon;
+   int  font;
+   bool spacer;
 };
 
 struct atv_sidebar_entries
@@ -168,16 +173,31 @@ static bool atv_sidebar_icon_load(struct atv_icon *icon, const char *filename)
    fflush(stdout);
 }
 
+static void sidebar_entry_add(int index, const char* name, const char* label, 
+   const char *icon, int font_size, bool spacer)
+{
+   snprintf(entries.entry[index].name,     MAX_SIZE,  "%s", name);
+   snprintf(entries.entry[index].label,     MAX_SIZE, "%s", label);
+   snprintf(entries.entry[index].icon_path,  MAX_SIZE,  "%s", icon);
+   entries.entry[index].font   = font_size;
+   entries.entry[index].spacer = spacer;
+   entries.entry[index].id     = index;
+   entries.count ++;
+}
+
 static void sidebar_icon_load()
 {
+   sidebar_entry_add(0,  "search",          "",              "search_fab", 6, true);
+   sidebar_entry_add(1,  "history",         "History",       "history",    3, false);
+   sidebar_entry_add(2,  "folders",         "File Browser",  "folders",    3, false);
+   sidebar_entry_add(3,  "netplay",         "Netplay Rooms", "netplay",    3, true);
+   sidebar_entry_add(4,  "settings",        "Settings",      "settings",   3, false);
+   sidebar_entry_add(5,  "tools",           "Tools",         "tools",      3, false);
+   sidebar_entry_add(6,  "exit",            "Exit",          "exit",       3, true);
 
-   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_SEARCH], "search_fab");
-   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_HISTORY], "history");
-   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_FOLDERS], "folder");
-   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_SETTINGS], "settings");
-   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_EXIT], "exit");
-   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_TOOLS], "tools");
-   atv_sidebar_icon_load(&sidebar_icons[SIDEBAR_NETPLAY], "netplay");
+   for (int i = 0;  i < entries.count; i++)
+      atv_sidebar_icon_load(&entries.entry[i].icon, entries.entry[i].icon_path);
+
 
    atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_SNES], "snes");
    atv_sidebar_icon_load(&sidebar_icons[PLAYLIST_GBA], "gba");
@@ -286,20 +306,12 @@ int sidebar_button_text_styled(struct nk_context *ctx,
             style, ctx->style.font, in, active);
 }
 
-static int sidebar_button(struct nk_context *ctx, int img_idx, 
-   char* label, bool image, struct nk_font* font, bool active, void (*cb)(void))
+static int sidebar_button(struct nk_context *ctx, char* label, struct atv_icon image, 
+   struct nk_font* font, bool active, void (*cb)(void))
 {
    nk_style_set_font(ctx, &font->handle);
-   if (image)
-   {
-      if (sidebar_button_text_styled(ctx, &ctx->style.button, sidebar_icons[img_idx], label, strlen(label), NK_TEXT_RIGHT, active))
-         cb();
-   }
-   else
-   {
-      if (nk_button_label(ctx, label))
-         cb();
-   }
+   if (sidebar_button_text_styled(ctx, &ctx->style.button, image, label, strlen(label), NK_TEXT_RIGHT, active))
+      cb();
 }
 
 static void sidebar_placeholder(struct nk_context *ctx)
@@ -309,16 +321,15 @@ static void sidebar_placeholder(struct nk_context *ctx)
    nk_button_text(ctx, "", 0);
 }
 
-static void sidebar_entry_widget(struct nk_context *ctx, int img_idx, char* label, 
-   bool image, struct atv_font* f, int active, void (*cb)(void))
+static void sidebar_entry_widget(struct nk_context *ctx, int id, int active, void (*cb)(void))
 {
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height / 2, 1);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entries.entry[id].font].height / 2, 1);
    nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 2);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entries.entry[id].font].height * 1.2f, 2);
    nk_layout_row_push(ctx, 0.05f);
    sidebar_placeholder(ctx);
    nk_layout_row_push(ctx, 0.95f);
-   sidebar_button(ctx, img_idx, label, image, f->font, active == img_idx, cb);
+   sidebar_button(ctx, entries.entry[id].label, entries.entry[id].icon, fonts[entries.entry[id].font].font, active == id, cb);
    nk_layout_row_end(ctx);
 }
 
