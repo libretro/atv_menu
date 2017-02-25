@@ -250,7 +250,7 @@ void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     const struct nk_rect *bounds, const struct nk_rect *label,
     const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
     const char *str, int len, const struct nk_user_font *font,
-    struct atv_icon *icon, bool active)
+    struct atv_icon *icon, bool hover)
 {
     struct nk_text text;
     struct nk_image *img;
@@ -261,7 +261,7 @@ void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     if (background->type == NK_STYLE_ITEM_COLOR)
         text.background = background->data.color;
     else text.background = style->text_background;
-    if (state & NK_WIDGET_STATE_HOVER || active)
+    if (state & NK_WIDGET_STATE_HOVER || hover)
     {
         text.text = style->text_hover;
         text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
@@ -284,7 +284,7 @@ int sidebar_do_button_text_styled(nk_flags *state,
     struct nk_command_buffer *out, struct nk_rect bounds,
     struct atv_icon img, const char* str, int len, nk_flags align,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
-    const struct nk_user_font *font, const struct nk_input *in, bool active)
+    const struct nk_user_font *font, const struct nk_input *in, bool hover)
 {
     int ret;
     struct nk_rect icon;
@@ -311,14 +311,14 @@ int sidebar_do_button_text_styled(nk_flags *state,
     icon.h -= 2 * style->image_padding.y;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    sidebar_draw_button_text_image(out, &bounds, &content, &icon, *state, style, str, len, font, &img, active);
+    sidebar_draw_button_text_image(out, &bounds, &content, &icon, *state, style, str, len, font, &img, hover);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
 
 int sidebar_button_text_styled(struct nk_context *ctx,
     const struct nk_style_button *style, struct atv_icon img, const char *text,
-    int len, nk_flags align, bool active)
+    int len, nk_flags align, bool hover)
 {
     struct nk_window *win;
     struct nk_panel *layout;
@@ -341,14 +341,14 @@ int sidebar_button_text_styled(struct nk_context *ctx,
     in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
     return sidebar_do_button_text_styled(&ctx->last_widget_state, &win->buffer,
             bounds, img, text, len, align, ctx->button_behavior,
-            style, ctx->style.font, in, active);
+            style, ctx->style.font, in, hover);
 }
 
 static int sidebar_button(struct nk_context *ctx, struct atv_menu_entry *entry, 
-   bool active, void (*cb)(struct atv_menu_entry *entry))
+   bool hover, bool activate, void (*cb)(struct atv_menu_entry *entry))
 {
    nk_style_set_font(ctx, &fonts[entry->font].font->handle);
-   if (sidebar_button_text_styled(ctx, &ctx->style.button, entry->icon, entry->label, strlen(entry->label), NK_TEXT_RIGHT, active))
+   if (sidebar_button_text_styled(ctx, &ctx->style.button, entry->icon, entry->label, strlen(entry->label), NK_TEXT_RIGHT, hover) || activate && hover)
       cb(entry);
 }
 
@@ -360,7 +360,7 @@ static void sidebar_placeholder(struct nk_context *ctx)
 }
 
 static void sidebar_entry_widget(struct nk_context *ctx, struct atv_menu_entry *entry, 
-   int active, int offset, void (*cb)(struct atv_menu_entry *entry))
+   int hover, bool activate, int offset, void (*cb)(struct atv_menu_entry *entry))
 {
    nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entry->font].height / 2, 1);
    nk_layout_row_end(ctx);
@@ -368,7 +368,7 @@ static void sidebar_entry_widget(struct nk_context *ctx, struct atv_menu_entry *
    nk_layout_row_push(ctx, 0.05f);
    sidebar_placeholder(ctx);
    nk_layout_row_push(ctx, 0.95f);
-   sidebar_button(ctx, entry, active == entry->id + offset, cb);
+   sidebar_button(ctx, entry, hover == entry->id + offset, activate, cb);
    nk_layout_row_end(ctx);
 }
 
@@ -389,7 +389,7 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
     const char *str1, int len1, const char *str2, int len2,
     const struct nk_user_font *font1, const struct nk_user_font *font2,
-    struct nk_image *img, bool active)
+    struct nk_image *img, bool hover)
 {
     struct nk_text text;
     const struct nk_style_item *background;
@@ -399,7 +399,7 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     if (background->type == NK_STYLE_ITEM_COLOR)
         text.background = background->data.color;
     else text.background = style->text_background;
-    if (state & NK_WIDGET_STATE_HOVER || active)
+    if (state & NK_WIDGET_STATE_HOVER || hover)
     {
         text.text = style->text_hover;
         text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
@@ -422,7 +422,7 @@ int content_entry_do_button_text_styled(nk_flags *state,
     const char* str2, int len2,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
     const struct nk_user_font *font1, const struct nk_user_font *font2,
-    const struct nk_input *in, bool active)
+    const struct nk_input *in, bool hover)
 {
     int ret;
     struct nk_rect icon;
@@ -456,7 +456,7 @@ int content_entry_do_button_text_styled(nk_flags *state,
     sublabel.h = font2->height * 2 + style->padding.y;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    content_entry_draw_button_text_image(out, &bounds, &label, &sublabel, &icon, *state, style, str1, len1, str2, len2, font1, font2, &img, active);
+    content_entry_draw_button_text_image(out, &bounds, &label, &sublabel, &icon, *state, style, str1, len1, str2, len2, font1, font2, &img, hover);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
@@ -464,7 +464,7 @@ int content_entry_do_button_text_styled(nk_flags *state,
 int content_button_text_styled(struct nk_context *ctx,
     struct nk_image img, const char *label,
     int len_label, const char* sublabel, int len_sublabel,
-    struct nk_user_font *font_label, struct nk_user_font *font_sublabel, bool active)
+    struct nk_user_font *font_label, struct nk_user_font *font_sublabel, bool hover)
 {
     struct nk_window *win;
     struct nk_panel *layout;
@@ -487,23 +487,23 @@ int content_button_text_styled(struct nk_context *ctx,
     in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
     return content_entry_do_button_text_styled(&ctx->last_widget_state, &win->buffer,
             bounds, img, label, len_label, sublabel, len_sublabel, ctx->button_behavior,
-            &ctx->style.button, font_label, font_sublabel, in, active);
+            &ctx->style.button, font_label, font_sublabel, in, hover);
 }
 
 static int content_button(struct nk_context *ctx, struct atv_content_entry *entry, 
-   bool active, void (*cb)(struct atv_content_entry *entry))
+   bool hover, bool activate, void (*cb)(struct atv_content_entry *entry))
 {
    //nk_style_set_font(ctx, &f1->handle);
    if (content_button_text_styled(ctx, entry->icon, entry->label, strlen(entry->label), 
       entry->sublabel, strlen(entry->sublabel), &fonts[entry->font_label].font->handle, 
-      &fonts[entry->font_sublabel].font->handle, active))
+      &fonts[entry->font_sublabel].font->handle, hover) || activate && hover)
       cb(entry);
 }
 
 static void content_entry_widget(struct nk_context *ctx, struct atv_content_entry* entry, 
-   int active, int columns, void (*cb)(struct atv_content_entry *entry))
+   int hover, bool activate, int columns, void (*cb)(struct atv_content_entry *entry))
 {
-   content_button(ctx, entry, active == entry->id, cb);
+   content_button(ctx, entry, hover == entry->id, activate, cb);
 }
 
 static void content_title(struct nk_context *ctx, char* label, 

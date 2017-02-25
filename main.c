@@ -99,6 +99,7 @@ int main(void)
    static bool lock_keys = false;
    static int items = 0;
    static int content_entries = 0;
+   static bool activate = false;
 
    glfwSwapInterval(1);
 
@@ -190,7 +191,7 @@ int main(void)
          {
             nk_layout_row_static(ctx, 220, 280, items);
             for (int i=0; i < history_entries.count; i++)
-               content_entry_widget(ctx, &history_entries.entry[i], content_current_id, items, history_entry_cb);
+               content_entry_widget(ctx, &history_entries.entry[i], content_current_id, activate && nk_window_is_active(ctx, "Content"), items, history_entry_cb);
             set_style(ctx);
          }
          content_entries = history_entries.count;
@@ -208,13 +209,13 @@ int main(void)
          sidebar_spacer(ctx, 8);
          for (int i=0; i < menu_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, &menu_entries.entry[i], sidebar_current_id, menu_entries.offset, menu_entry_cb);
+            sidebar_entry_widget(ctx, &menu_entries.entry[i], sidebar_current_id, activate && nk_window_is_active(ctx, "Sidebar"), menu_entries.offset, menu_entry_cb);
             if (menu_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
          for (int i=0; i < playlist_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, &playlist_entries.entry[i], sidebar_current_id, playlist_entries.offset, playlist_entry_cb);
+            sidebar_entry_widget(ctx, &playlist_entries.entry[i], sidebar_current_id, activate, playlist_entries.offset, playlist_entry_cb);
             if (playlist_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
@@ -224,6 +225,7 @@ int main(void)
 
       const struct nk_input *in = &ctx->input;
       const int delta = 60;
+      activate = false;
       if (nk_window_is_active(ctx, "Content"))
       {
          if (sidebar_width > 15 )
@@ -266,6 +268,17 @@ int main(void)
                content_current_id += items;
             lock_keys = true;
          }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_ENTER))
+         {
+            activate = true;
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_BACKSPACE))
+         {
+            nk_window_set_focus(ctx, "Sidebar");
+            lock_keys = true;
+         }
+         
       }
       else
       {
@@ -294,8 +307,11 @@ int main(void)
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_RIGHT))
          {
             nk_window_set_focus(ctx, "Content");
-            printf("help!!!");
-            fflush(stdout);
+            lock_keys = true;
+         }
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_ENTER))
+         {
+            activate = true;
             lock_keys = true;
          }
       }
