@@ -168,7 +168,7 @@ static struct nk_image icon_load(const char *filename)
    return nk_image_id((int)tex);
 }
 
-static bool atv_dummy_data_load(struct atv_icon *icon, const char *filename)
+static bool menu_entry_icon_load(struct atv_icon *icon, const char *filename)
 {
    char buf[256];
    fflush(stdout);
@@ -192,7 +192,7 @@ static void content_entry_add(struct atv_content_entries* entries,
    entries->entry[index].font_sublabel = sublabel_size;
    entries->entry[index].id            = index;
    entries->count ++;
-   return;
+      entries->entry[index].icon       = icon_load(icon);
 }
 
 static void menu_entry_add(struct atv_menu_entries* entries, 
@@ -206,9 +206,10 @@ static void menu_entry_add(struct atv_menu_entries* entries,
    entries->entry[index].spacer = spacer;
    entries->entry[index].id     = index;
    entries->count ++;
+   menu_entry_icon_load(&entries->entry[index].icon, icon);
 }
 
-static void sidebar_data_load()
+static void dummy_data_load()
 {
    menu_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
    menu_entry_add(&menu_entries, 1,  "history",  "History",       "history",    3, false);
@@ -218,27 +219,23 @@ static void sidebar_data_load()
    menu_entry_add(&menu_entries, 5,  "tools",    "Tools",         "tools",      3, false);
    menu_entry_add(&menu_entries, 6,  "exit",     "Exit",          "exit",       3, true);
 
-   for (int i = 0;  i < menu_entries.count; i++)
-      atv_dummy_data_load(&menu_entries.entry[i].icon, menu_entries.entry[i].icon_path);
-
    playlist_entries.offset = menu_entries.count;
    menu_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
    menu_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
 
-   for (int i = 0;  i < playlist_entries.count; i++)
-      atv_dummy_data_load(&playlist_entries.entry[i].icon, playlist_entries.entry[i].icon_path);
-
-   content_entry_add(&history_entries, 1, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",  2, 1);
-   content_entry_add(&history_entries, 0, "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png", 2, 1);
-   
-
-   color_bars = icon_load("png/color_bars.png");
-   test_entry = icon_load("png/minish.png");
-   test_entry2 = icon_load("png/alttp.png");
+   content_entry_add(&history_entries, 0, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
+   content_entry_add(&history_entries, 1, "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
+   content_entry_add(&history_entries, 2, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 3, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 4, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 5, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 6, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 7, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 8, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 9, "Dummy",                               "Dummy Data",      "png/color_bars.png", 2, 1);
 }
 
 /* widgets */
-
 void sidebar_draw_button_text_image(struct nk_command_buffer *out,
     const struct nk_rect *bounds, const struct nk_rect *label,
     const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
@@ -405,10 +402,8 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     else text.text = style->text_normal;
     
     nk_draw_image(out, *image, img, nk_white);
-    //nk_widget_text(out, *label, str1, len1, &text, NK_TEXT_LEFT, font1);
-    //nk_widget_text(out, *sublabel, str2, len2, &text, NK_TEXT_, font2);
     nk_widget_text_wrap(out, *label, str1, len1, &text, font1);
-    nk_widget_text(out, *sublabel, str2, len2, &text, font2);
+    nk_widget_text(out, *sublabel, str2, len2, &text, NK_TEXT_RIGHT, font2);
 }
 
 int content_entry_do_button_text_styled(nk_flags *state,
@@ -494,10 +489,11 @@ static int content_button(struct nk_context *ctx, char* label, struct nk_font* f
       cb();
 }
 
-static void content_entry(struct nk_context *ctx, char* label, char *sublabel, 
-   struct atv_font *f1, struct atv_font *f2, struct nk_image img, void (*cb)(void))
+static void content_entry_widget(struct nk_context *ctx, struct atv_content_entry* entry, 
+   int active, int columns, void (*cb)(void))
 {
-   content_button(ctx, label, f1->font, sublabel, f2->font, img, cb);
+   content_button(ctx, entry->label, fonts[entry->font_label].font, 
+      entry->sublabel, fonts[entry->font_sublabel].font, entry->icon, cb);
 }
 
 static void content_title(struct nk_context *ctx, char* label, 

@@ -116,7 +116,7 @@ int main(void)
       exit(1);
    }
 
-   sidebar_data_load();
+   dummy_data_load();
 
    ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
    /* Load Fonts: if none of these are loaded a default font will be used  */
@@ -179,22 +179,8 @@ int main(void)
          {
             int items = content_view_width / 280;
             nk_layout_row_static(ctx, 220, 280, items);
-            content_entry(ctx, "Legend of Zelda: The Minish Cap", "Nintendo Gameboy Advance", &fonts[2], &fonts[1], test_entry, test);
-            content_entry(ctx, "Legend of Zelda: A Link to the Past", "Super Nintendo Entertainment System",  &fonts[2], &fonts[1], test_entry2, test);
-            content_entry(ctx, "Label 3", "Sublabel 3",  &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 4", "Sublabel 4",  &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 5", "Sublabel 5",  &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 6", "Sublabel 6",  &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 7", "Sublabel 7",  &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 8", "Sublabel 8",  &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 9", "Sublabel 9",  &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 10", "Sublabel 10", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 11", "Sublabel 11", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 12", "Sublabel 12", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 13", "Sublabel 13", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 14", "Sublabel 14", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 15", "Sublabel 15", &fonts[2], &fonts[1], color_bars, test);
-            content_entry(ctx, "Label 16", "Sublabel 16", &fonts[2], &fonts[1], color_bars, test);
+            for (int i=0; i < history_entries.count; i++)
+               content_entry_widget(ctx, &history_entries.entry[i], 0, items, test);
             set_style(ctx);
          }
       }
