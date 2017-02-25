@@ -408,7 +408,7 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     //nk_widget_text(out, *label, str1, len1, &text, NK_TEXT_LEFT, font1);
     //nk_widget_text(out, *sublabel, str2, len2, &text, NK_TEXT_, font2);
     nk_widget_text_wrap(out, *label, str1, len1, &text, font1);
-    nk_widget_text_wrap(out, *sublabel, str2, len2, &text, font2);
+    nk_widget_text(out, *sublabel, str2, len2, &text, font2);
 }
 
 int content_entry_do_button_text_styled(nk_flags *state,
