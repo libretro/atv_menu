@@ -312,11 +312,11 @@ int sidebar_button_text_styled(struct nk_context *ctx,
             style, ctx->style.font, in, active);
 }
 
-static int sidebar_button(struct nk_context *ctx, struct atv_sidebar_entry entry, 
-   bool active, void (*cb)(struct atv_sidebar_entry entry))
+static int sidebar_button(struct nk_context *ctx, struct atv_sidebar_entry *entry, 
+   bool active, void (*cb)(struct atv_sidebar_entry *entry))
 {
-   nk_style_set_font(ctx, &fonts[entry.font].font->handle);
-   if (sidebar_button_text_styled(ctx, &ctx->style.button, entry.icon, entry.label, strlen(entry.label), NK_TEXT_RIGHT, active))
+   nk_style_set_font(ctx, &fonts[entry->font].font->handle);
+   if (sidebar_button_text_styled(ctx, &ctx->style.button, entry->icon, entry->label, strlen(entry->label), NK_TEXT_RIGHT, active))
       cb(entry);
 }
 
@@ -327,16 +327,16 @@ static void sidebar_placeholder(struct nk_context *ctx)
    nk_button_text(ctx, "", 0);
 }
 
-static void sidebar_entry_widget(struct nk_context *ctx, struct atv_sidebar_entry entry, 
-   int active, int offset, void (*cb)(struct atv_sidebar_entry entry))
+static void sidebar_entry_widget(struct nk_context *ctx, struct atv_sidebar_entry *entry, 
+   int active, int offset, void (*cb)(struct atv_sidebar_entry *entry))
 {
-   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entry.font].height / 2, 1);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entry->font].height / 2, 1);
    nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entry.font].height * 1.2f, 2);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, fonts[entry->font].height * 1.2f, 2);
    nk_layout_row_push(ctx, 0.05f);
    sidebar_placeholder(ctx);
    nk_layout_row_push(ctx, 0.95f);
-   sidebar_button(ctx, entry, active == entry.id + offset, cb);
+   sidebar_button(ctx, entry, active == entry->id + offset, cb);
    nk_layout_row_end(ctx);
 }
 

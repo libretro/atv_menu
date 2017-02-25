@@ -66,9 +66,9 @@ void test(void)
    fflush(stdout);
 }
 
-void menu_entry_cb(struct atv_sidebar_entry entry)
+void menu_entry_cb(struct atv_sidebar_entry *entry)
 {
-   printf("Do something with this: %s\n", entry.label);
+   printf("Do something with this: %s\n", entry->label);
    fflush(stdout);
 }
 
@@ -207,13 +207,13 @@ int main(void)
          sidebar_spacer(ctx, 8);
          for (int i=0; i < menu_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, menu_entries.entry[i], active, menu_entries.offset, menu_entry_cb);
+            sidebar_entry_widget(ctx, &menu_entries.entry[i], active, menu_entries.offset, menu_entry_cb);
             if (menu_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
          for (int i=0; i < playlist_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, playlist_entries.entry[i], active, playlist_entries.offset, menu_entry_cb);
+            sidebar_entry_widget(ctx, &playlist_entries.entry[i], active, playlist_entries.offset, menu_entry_cb);
             if (playlist_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
