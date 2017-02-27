@@ -212,7 +212,7 @@ int main(void)
                if (row == 1)
                   nk_spacing(ctx, 1);
                for (; col < items * row && col < history_entries.count; col++)
-                  content_entry_widget(ctx, &history_entries.entry[col], content_current_id, activate && content_active, items, history_entry_cb);
+                  content_entry_widget(ctx, &history_entries.entry[col], content_current_id, activate && content_active, history_entry_cb);
                if(col != history_entries.count)
                {
                   nk_spacing(ctx, 1);
@@ -249,7 +249,7 @@ int main(void)
                if (row == 1)
                   nk_spacing(ctx, 1);
                for (; col < items * row && col < file_browser_entries.count; col++)
-                  content_entry_widget(ctx, &file_browser_entries.entry[col], content_current_id, activate && content_active, items, history_entry_cb);
+                  content_entry_widget(ctx, &file_browser_entries.entry[col], content_current_id, activate && content_active,  history_entry_cb);
                if(col != file_browser_entries.count)
                {
                   nk_spacing(ctx, 1);
@@ -265,8 +265,8 @@ int main(void)
             if (sidebar_active)
             {
                content_subtitle(ctx, "Netplay Rooms", &fonts[4]);
-               if (file_browser_entries.count >= content_view_width / 280)
-                  items = file_browser_entries.count / 2;
+               if (netplay_rooms_entries.count >= content_view_width / 160)
+                  items = netplay_rooms_entries.count / 2;
                else
                   items = content_view_width / 160;
             }
@@ -281,19 +281,19 @@ int main(void)
             nk_layout_row_template_end(ctx);
 
             col = 0;
-            for (int row = 1; row <= file_browser_entries.count / items + 1; row++)
+            for (int row = 1; row <= netplay_rooms_entries.count / items + 1; row++)
             {
                if (row == 1)
                   nk_spacing(ctx, 1);
-               for (; col < items * row && col < file_browser_entries.count; col++)
-                  content_entry_widget(ctx, &file_browser_entries.entry[col], content_current_id, activate && content_active, items, history_entry_cb);
-               if(col != file_browser_entries.count)
+               for (; col < items * row && col < netplay_rooms_entries.count; col++)
+                  content_entry_widget(ctx, &netplay_rooms_entries.entry[col], content_current_id, activate && content_active,  history_entry_cb);
+               if(col != netplay_rooms_entries.count)
                {
                   nk_spacing(ctx, 1);
                   nk_spacing(ctx, 1);
                }
             }
-            content_entries += file_browser_entries.count;
+            content_entries += netplay_rooms_entries.count;
          }
 
          set_style(ctx);
@@ -422,7 +422,7 @@ int main(void)
          lock_keys = false;
       content_active = nk_window_is_active(ctx, "content");
       sidebar_active = nk_window_is_active(ctx, "sidebar");
-      folders_active = strcmp(menu_entries.entry[sidebar_current_id].name, "folders") == 0 ? true : false;
+      folders_active = strcmp(menu_entries.entry[sidebar_current_id].name, "folder") == 0 ? true : false;
       history_active = strcmp(menu_entries.entry[sidebar_current_id].name, "history") == 0 ? true : false;
       netplay_active = strcmp(menu_entries.entry[sidebar_current_id].name, "netplay") == 0 ? true : false;
 

@@ -1,5 +1,5 @@
 Thanks for visiting MaterialDesignIcons.com
 Check back often for new icons and follow @MaterialIcons for updates.
 
-Icon: access-point-network
-By: Cody
+Icon: reload
+By: Austin Andrews

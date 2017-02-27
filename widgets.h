@@ -71,12 +71,14 @@ struct atv_menu_entry
 struct atv_content_entry
 {
    int id;
+   bool setting;
    char label     [MAX_SIZE];
    char sublabel  [MAX_SIZE];
    char icon_path [MAX_SIZE];
+   struct atv_icon icon_setting;
    struct nk_image icon;
    int  font_label;
-   int  font_sublabel;   
+   int  font_sublabel; 
 };
 
 struct atv_menu_entries
@@ -89,7 +91,6 @@ struct atv_menu_entries
 struct atv_content_entries
 {
    int count;
-   int columns;
    struct atv_content_entry entry[100];
 };
 
@@ -103,6 +104,7 @@ struct atv_menu_entries menu_entries;
 struct atv_menu_entries playlist_entries;
 struct atv_content_entries history_entries;
 struct atv_content_entries file_browser_entries;
+struct atv_content_entries netplay_rooms_entries;
 
 struct nk_image color_bars, test_entry, test_entry2;
 
@@ -176,9 +178,10 @@ static bool menu_entry_icon_load(struct atv_icon *icon, const char *filename)
 }
 
 static void content_entry_add(struct atv_content_entries* entries,
-   int index, const char* label, const char* sublabel, const char *icon,
+   int index, bool setting, const char* label, const char* sublabel, const char *icon,
    int label_size, int sublabel_size)
 {
+   entries->entry[index].setting = setting;
    snprintf(entries->entry[index].label,      MAX_SIZE, "%s", label);
    snprintf(entries->entry[index].sublabel,   MAX_SIZE, "%s", sublabel);
    snprintf(entries->entry[index].icon_path,  MAX_SIZE, "%s", icon);
@@ -186,6 +189,9 @@ static void content_entry_add(struct atv_content_entries* entries,
    entries->entry[index].font_sublabel = sublabel_size;
    entries->entry[index].id            = index;
    entries->count ++;
+   if (setting)
+      menu_entry_icon_load(&entries->entry[index].icon_setting, icon);
+   else
       entries->entry[index].icon       = icon_load(icon);
 }
 
@@ -207,7 +213,7 @@ static void dummy_data_load()
 {
    menu_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
    menu_entry_add(&menu_entries, 1,  "history",  "History",       "history",    3, false);
-   menu_entry_add(&menu_entries, 2,  "folders",  "File Browser",  "folders",    3, false);
+   menu_entry_add(&menu_entries, 2,  "folder",  "File Browser",  "folder",    3, false);
    menu_entry_add(&menu_entries, 3,  "netplay",  "Netplay Rooms", "netplay",    3, true);
    menu_entry_add(&menu_entries, 4,  "settings", "Settings",      "settings",   3, false);
    menu_entry_add(&menu_entries, 5,  "tools",    "Tools",         "tools",      3, false);
@@ -217,21 +223,25 @@ static void dummy_data_load()
    menu_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
    menu_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
 
-   content_entry_add(&history_entries, 0,  "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
-   content_entry_add(&history_entries, 1,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
-   content_entry_add(&history_entries, 2,  "Dummy 1",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 3,  "Dummy 2",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 4,  "Dummy 3",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 5,  "Dummy 4",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 6,  "Dummy 5",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 7,  "Dummy 6",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 8,  "Dummy 7",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 9,  "Dummy 8",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 0, false, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
+   content_entry_add(&history_entries, 1, false,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
+   content_entry_add(&history_entries, 2, false,  "Dummy 1",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 3, false,  "Dummy 2",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 4, false,  "Dummy 3",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 5, false,  "Dummy 4",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 6, false,  "Dummy 5",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 7, false,  "Dummy 6",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 8, false,  "Dummy 7",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&history_entries, 9, false,  "Dummy 8",                               "Dummy Data",      "png/color_bars.png", 2, 1);
 
-   content_entry_add(&file_browser_entries, 0,  "C:\\", "Drive", "png/tools_idle.png", 2, 1);
-   content_entry_add(&file_browser_entries, 1,  "D:\\", "Drive", "png/tools_idle.png", 2, 1);
-   content_entry_add(&file_browser_entries, 2,  "E:\\", "Drive", "png/tools_idle.png", 2, 1);
-   content_entry_add(&file_browser_entries, 3,  "F:\\", "Drive", "png/tools_idle.png", 2, 1);
+   content_entry_add(&file_browser_entries, 0, true, "C:\\", "Drive", "drive", 2, 1);
+   content_entry_add(&file_browser_entries, 1, true, "D:\\", "Drive", "drive", 2, 1);
+   content_entry_add(&file_browser_entries, 2, true, "E:\\", "Drive", "drive", 2, 1);
+   content_entry_add(&file_browser_entries, 3, true, "F:\\", "Drive", "drive", 2, 1);
+   content_entry_add(&file_browser_entries, 4, true, "Content",   "Folder", "folder", 2, 1);
+   content_entry_add(&file_browser_entries, 5, true, "Downloads", "Folder", "folder", 2, 1);
+
+   content_entry_add(&netplay_rooms_entries, 0, true, "Empty", "Refresh", "refresh", 2, 1);
 }
 
 /* widgets */
@@ -374,11 +384,9 @@ static void sidebar_spacer(struct nk_context *ctx, int height)
 /* ----------------- */
 
 void content_entry_draw_button_text_image(struct nk_command_buffer *out,
+    struct atv_content_entry *entry,
     const struct nk_rect *bounds, const struct nk_rect *label, const struct nk_rect *sublabel,
-    const struct nk_rect *image, nk_flags state, const struct nk_style_button *style,
-    const char *str1, int len1, const char *str2, int len2,
-    const struct nk_user_font *font1, const struct nk_user_font *font2,
-    struct nk_image *img, bool hover)
+    const struct nk_rect *image, nk_flags state, const struct nk_style_button *style, bool hover)
 {
     struct nk_text text;
     const struct nk_style_item *background;
@@ -392,25 +400,30 @@ void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     {
         text.text = style->text_hover;
         text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
+        nk_draw_image(out, *image, &entry->icon_setting.hover, nk_white);
     }
     else if (state & NK_WIDGET_STATE_ACTIVED)
     {
         text.text = style->text_active;
         text.text = atv_colors_custom[NK_COLOR_TEXT_ACTIVE];
+        nk_draw_image(out, *image, &entry->icon_setting.selected, nk_white);
     }
-    else text.text = style->text_normal;
+    else 
+    { 
+      text.text = style->text_normal;
+      nk_draw_image(out, *image, &entry->icon_setting.normal, nk_white);
+    }
     
-    nk_draw_image(out, *image, img, nk_white);
-    nk_widget_text_wrap(out, *label, str1, len1, &text, font1);
-    nk_widget_text(out, *sublabel, str2, len2, &text, NK_TEXT_RIGHT, font2);
+    if (!entry->setting)
+      nk_draw_image(out, *image, &entry->icon, nk_white);
+    nk_widget_text_wrap(out, *label, entry->label, strlen(entry->label), &text, &fonts[entry->font_label].font->handle);
+    nk_widget_text_wrap(out, *sublabel, entry->sublabel, strlen(entry->sublabel), &text, &fonts[entry->font_sublabel].font->handle);
 }
 
 int content_entry_do_button_text_styled(nk_flags *state,
+    struct atv_content_entry *entry,
     struct nk_command_buffer *out, struct nk_rect bounds,
-    struct nk_image img, const char* str1, int len1, 
-    const char* str2, int len2,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
-    const struct nk_user_font *font1, const struct nk_user_font *font2,
     const struct nk_input *in, bool hover)
 {
     int ret;
@@ -421,39 +434,54 @@ int content_entry_do_button_text_styled(nk_flags *state,
 
     NK_ASSERT(style);
     NK_ASSERT(state);
-    NK_ASSERT(font1);
-    NK_ASSERT(font2);
+    NK_ASSERT(entry);
     NK_ASSERT(out);
-    if (!out || !font1 || !font2 || !style || !str1)
+    if (!out || !entry || !style )
         return nk_false;
 
     ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
-    icon.x = bounds.x + style->padding.x + style->image_padding.x + 6;
-    icon.y = bounds.y + style->padding.y + style->image_padding.y + 6;
-    icon.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;
-    /* 1.45 is steam grid image aspect ratio */
-    icon.h = icon.w / 2.14;
+
+
+    if (entry->setting)
+    {
+      icon.w = (bounds.w / 2) - 2 * style->padding.x - 2 * style->image_padding.x - 12;
+      icon.h = icon.w / 1;
+      icon.x = bounds.x + 0.5 * icon.w + style->padding.x + style->image_padding.x + 6;
+      icon.y = bounds.y + style->padding.y + style->image_padding.y + 6;
+
+      label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
+      label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
+      label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
+      label.h = fonts[entry->font_label].height * 2 + style->padding.y;
+    }
+    else
+    {
+      icon.x = bounds.x + style->padding.x + style->image_padding.x + 6;
+      icon.y = bounds.y + style->padding.y + style->image_padding.y + 6;
+      icon.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;
+      icon.h = icon.w / 2.14;
+
+      label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
+      label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
+      label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
+      label.h = fonts[entry->font_label].height * 2 + style->padding.y;
+    }
     
-    label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
-    label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
-    label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
-    label.h = font1->height * 2 + style->padding.y;
+
 
     sublabel.x = bounds.x + style->padding.x + style->image_padding.x + 6;
     sublabel.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6 + label.h + 6;
     sublabel.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
-    sublabel.h = font2->height * 2 + style->padding.y;
+    sublabel.h = fonts[entry->font_sublabel].height * 2 + style->padding.y;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    content_entry_draw_button_text_image(out, &bounds, &label, &sublabel, &icon, *state, style, str1, len1, str2, len2, font1, font2, &img, hover);
+    content_entry_draw_button_text_image(out, entry, &bounds, &label, &sublabel, &icon, *state, style, hover);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
 
-int content_button_text_styled(struct nk_context *ctx,
-    struct nk_image img, const char *label,
-    int len_label, const char* sublabel, int len_sublabel,
-    struct nk_user_font *font_label, struct nk_user_font *font_sublabel, bool hover)
+int content_button_text_styled(struct nk_context *ctx, 
+   struct atv_content_entry *entry, bool hover)
 {
     struct nk_window *win;
     struct nk_panel *layout;
@@ -474,23 +502,19 @@ int content_button_text_styled(struct nk_context *ctx,
     state = nk_widget(&bounds, ctx);
     if (!state) return 0;
     in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
-    return content_entry_do_button_text_styled(&ctx->last_widget_state, &win->buffer,
-            bounds, img, label, len_label, sublabel, len_sublabel, ctx->button_behavior,
-            &ctx->style.button, font_label, font_sublabel, in, hover);
+    return content_entry_do_button_text_styled(&ctx->last_widget_state, entry, &win->buffer,
+            bounds, ctx->button_behavior, &ctx->style.button, in, hover);
 }
 
 static int content_button(struct nk_context *ctx, struct atv_content_entry *entry, 
    bool hover, bool activate, void (*cb)(struct atv_content_entry *entry))
 {
-   //nk_style_set_font(ctx, &f1->handle);
-   if (content_button_text_styled(ctx, entry->icon, entry->label, strlen(entry->label), 
-      entry->sublabel, strlen(entry->sublabel), &fonts[entry->font_label].font->handle, 
-      &fonts[entry->font_sublabel].font->handle, hover) || activate && hover)
+   if (content_button_text_styled(ctx, entry, hover) || activate && hover)
       cb(entry);
 }
 
 static void content_entry_widget(struct nk_context *ctx, struct atv_content_entry* entry, 
-   int hover, bool activate, int columns, void (*cb)(struct atv_content_entry *entry))
+   int hover, bool activate, void (*cb)(struct atv_content_entry *entry))
 {
    content_button(ctx, entry, hover == entry->id, activate, cb);
 }
