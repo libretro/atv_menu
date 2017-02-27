@@ -102,7 +102,8 @@ struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
 struct atv_menu_entries menu_entries;
 struct atv_menu_entries playlist_entries;
-struct atv_content_entries featured_entries;
+struct atv_content_entries favorites_entries;
+struct atv_content_entries recent_entries;
 struct atv_content_entries file_browser_entries;
 struct atv_content_entries netplay_rooms_entries;
 
@@ -168,11 +169,11 @@ static bool menu_entry_icon_load(struct atv_icon *icon, const char *filename)
 {
    char buf[256];
    fflush(stdout);
-   snprintf(buf, sizeof(buf), "png/%s_idle.png", filename);
+   snprintf(buf, sizeof(buf), "png/icons/%s_idle.png", filename);
    icon->normal = icon_load(buf);
-   snprintf(buf, sizeof(buf), "png/%s_active.png", filename);
+   snprintf(buf, sizeof(buf), "png/icons/%s_active.png", filename);
    icon->selected = icon_load(buf);
-   snprintf(buf, sizeof(buf), "png/%s_hover.png", filename);
+   snprintf(buf, sizeof(buf), "png/icons/%s_hover.png", filename);
    icon->hover = icon_load(buf);
    fflush(stdout);
 }
@@ -211,29 +212,38 @@ static void menu_entry_add(struct atv_menu_entries* entries,
 
 static void dummy_data_load()
 {
-   menu_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
-   menu_entry_add(&menu_entries, 1,  "featured",  "Featured",       "featured",    3, false);
-   menu_entry_add(&menu_entries, 2,  "folder",  "File Browser",  "folder",    3, false);
-   menu_entry_add(&menu_entries, 3,  "netplay",  "Netplay Rooms", "netplay",    3, true);
-   menu_entry_add(&menu_entries, 4,  "settings", "Settings",      "settings",   3, false);
-   menu_entry_add(&menu_entries, 5,  "tools",    "Tools",         "tools",      3, false);
-   menu_entry_add(&menu_entries, 6,  "exit",     "Exit",          "exit",       3, true);
+   menu_entry_add(&menu_entries, 0, "search",    "",          "search_fab", 6, true);
+   menu_entry_add(&menu_entries, 1, "favorites", "Favorites", "favorites",  3, false);
+   menu_entry_add(&menu_entries, 2, "recent",    "Recent",    "recent",     3, true);
+   menu_entry_add(&menu_entries, 3, "folder",    "Browser",   "folder",     3, false);
+   menu_entry_add(&menu_entries, 4, "netplay",   "Netplay",   "netplay",    3, true);
+   menu_entry_add(&menu_entries, 5, "settings",  "Settings",  "settings",   3, false);
+   menu_entry_add(&menu_entries, 6, "tools",     "Tools",     "tools",      3, false);
+   menu_entry_add(&menu_entries, 7, "exit",      "Exit",      "exit",       3, true);
 
    playlist_entries.offset = menu_entries.count;
    menu_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
    menu_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
 
-   content_entry_add(&featured_entries, 0, false, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
-   content_entry_add(&featured_entries, 1, false,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
-   content_entry_add(&featured_entries, 2, false,  "Dummy 1 with line wrapping over at least two lines",
-                                                                                           "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&featured_entries, 3, false,  "Dummy 2",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&featured_entries, 4, false,  "Dummy 3",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&featured_entries, 5, false,  "Dummy 4",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&featured_entries, 6, false,  "Dummy 5",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&featured_entries, 7, false,  "Dummy 6",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&featured_entries, 8, false,  "Dummy 7",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&featured_entries, 9, false,  "Dummy 8",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&favorites_entries, 0, false, "Legend of Zelda: A Link to The Past", "Super Nintendo",   "png/thumbs/alttp.png",      2, 1);
+   content_entry_add(&favorites_entries, 1, false,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/thumbs/minish.png",     2, 1);
+
+   content_entry_add(&recent_entries, 0,  false,  "Dummy 1 with line wrapping over at least two lines",
+                                                                                           "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 1,  false,  "Dummy 2",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 2,  false,  "Dummy 3",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 3,  false,  "Dummy 4",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 4,  false,  "Dummy 5",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 5,  false,  "Dummy 6",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 6,  false,  "Dummy 7",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 7,  false,  "Dummy 8",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 8,  false,  "Dummy 2",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 9,  false,  "Dummy 3",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 10, false,  "Dummy 4",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 11, false,  "Dummy 5",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 12, false,  "Dummy 6",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 13, false,  "Dummy 7",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
+   content_entry_add(&recent_entries, 14, false,  "Dummy 8",                               "Dummy Data",      "png/thumbs/color_bars.png", 2, 1);
 
    content_entry_add(&file_browser_entries, 0, true, "C:\\", "Drive", "drive", 2, 1);
    content_entry_add(&file_browser_entries, 1, true, "D:\\", "Drive", "drive", 2, 1);
@@ -545,10 +555,8 @@ static void content_subtitle(struct nk_context *ctx, char* label,
    nk_style_set_font(ctx, &f->font->handle);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
    nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 2);
-   nk_layout_row_push(ctx, 0.02f);
-   nk_label(ctx, "", NK_TEXT_ALIGN_LEFT);
-   nk_layout_row_push(ctx, 0.98f);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 1);
+   nk_layout_row_push(ctx, 1.0f);
    nk_label(ctx, label, NK_TEXT_ALIGN_LEFT);
    nk_layout_row_end(ctx);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
