@@ -185,7 +185,7 @@ int main(void)
          ctx->style.button.border_color = nk_rgba(0,0,0,0);
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
-         if (history_active/* || sidebar_active*/)
+         if (history_active || sidebar_active)
          {
             int col = 0;
             if (sidebar_active)
@@ -222,10 +222,8 @@ int main(void)
             content_entries += history_entries.count;
          }
 
-         if (folders_active /*|| sidebar_active*/)
+         if (folders_active || sidebar_active)
          {
-            printf ("folders!!!!");
-            fflush(stdout);
             int col = 0;
             if (sidebar_active)
             {
@@ -238,15 +236,12 @@ int main(void)
             else
                items = content_view_width / 280;
 
-            if (0)
-            {
             nk_layout_row_template_begin(ctx, 220);
             nk_layout_row_template_push_dynamic(ctx);
             for (col = 0; col < items; col++)
                nk_layout_row_template_push_variable(ctx, 280);
             nk_layout_row_template_push_dynamic(ctx);
             nk_layout_row_template_end(ctx);
-            }
 
             col = 0;
             for (int row = 1; row <= file_browser_entries.count / items + 1; row++)
@@ -264,7 +259,7 @@ int main(void)
             content_entries += file_browser_entries.count;
          }
 
-         if (netplay_active/* || sidebar_active*/)
+         if (netplay_active || sidebar_active)
          {
             int col = 0;
             if (sidebar_active)
@@ -278,15 +273,12 @@ int main(void)
             else
                items = content_view_width / 280;
 
-               if (0)
-               {
-               nk_layout_row_template_begin(ctx, 220);
-               nk_layout_row_template_push_dynamic(ctx);
-               for (col = 0; col < items; col++)
-                  nk_layout_row_template_push_variable(ctx, 280);
-               nk_layout_row_template_push_dynamic(ctx);
-               nk_layout_row_template_end(ctx);
-               }
+            nk_layout_row_template_begin(ctx, 220);
+            nk_layout_row_template_push_dynamic(ctx);
+            for (col = 0; col < items; col++)
+               nk_layout_row_template_push_variable(ctx, 280);
+            nk_layout_row_template_push_dynamic(ctx);
+            nk_layout_row_template_end(ctx);
 
             col = 0;
             for (int row = 1; row <= file_browser_entries.count / items + 1; row++)
