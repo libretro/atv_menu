@@ -102,6 +102,7 @@ struct atv_font fonts[7];
 struct atv_menu_entries menu_entries;
 struct atv_menu_entries playlist_entries;
 struct atv_content_entries history_entries;
+struct atv_content_entries file_browser_entries;
 
 struct nk_image color_bars, test_entry, test_entry2;
 
@@ -226,16 +227,11 @@ static void dummy_data_load()
    content_entry_add(&history_entries, 7,  "Dummy 6",                               "Dummy Data",      "png/color_bars.png", 2, 1);
    content_entry_add(&history_entries, 8,  "Dummy 7",                               "Dummy Data",      "png/color_bars.png", 2, 1);
    content_entry_add(&history_entries, 9,  "Dummy 8",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 10, "Dummy 9",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 11, "Dummy 10",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 12, "Dummy 11",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 13, "Dummy 12",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 14, "Dummy 13",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 15, "Dummy 14",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 16, "Dummy 15",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 17, "Dummy 16",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 18, "Dummy 17",                              "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 19, "Dummy 18",                              "Dummy Data",      "png/color_bars.png", 2, 1);;
+
+   content_entry_add(&file_browser_entries, 0,  "C:\\", "Drive", "png/tools_idle.png", 2, 1);
+   content_entry_add(&file_browser_entries, 1,  "D:\\", "Drive", "png/tools_idle.png", 2, 1);
+   content_entry_add(&file_browser_entries, 2,  "E:\\", "Drive", "png/tools_idle.png", 2, 1);
+   content_entry_add(&file_browser_entries, 3,  "F:\\", "Drive", "png/tools_idle.png", 2, 1);
 }
 
 /* widgets */
@@ -503,12 +499,28 @@ static void content_title(struct nk_context *ctx, char* label,
    struct atv_font* f)
 {
    nk_style_set_font(ctx, &f->font->handle);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
    nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height, 1);
-   nk_layout_row_push(ctx, 0.95f);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 1);
+   nk_layout_row_push(ctx, 1.0f);
    nk_label(ctx, label, NK_TEXT_ALIGN_RIGHT);
    nk_layout_row_end(ctx);
-   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.5f, 1);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
+   nk_layout_row_end(ctx);
+}
+
+static void content_subtitle(struct nk_context *ctx, char* label, 
+   struct atv_font* f)
+{
+   nk_style_set_font(ctx, &f->font->handle);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 2);
+   nk_layout_row_push(ctx, 0.02f);
+   nk_label(ctx, "", NK_TEXT_ALIGN_LEFT);
+   nk_layout_row_push(ctx, 0.98f);
+   nk_label(ctx, label, NK_TEXT_ALIGN_LEFT);
+   nk_layout_row_end(ctx);
+   nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
    nk_layout_row_end(ctx);
 }

@@ -92,6 +92,7 @@ int main(void)
    static int items = 0;
    static int content_entries = 0;
    static bool activate = false;
+   static bool content_active, sidebar_active, history_active, folders_active, netplay_active = false;
 
    glfwSwapInterval(1);
 
@@ -158,7 +159,6 @@ int main(void)
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
       nk_begin(ctx, "Header", nk_rect(WINDOW_WIDTH * 20 / 100 + 1, 0, WINDOW_WIDTH * 80 / 100 - 1, content_title_height), 0);
       { 
-         items = content_view_width / 280;
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
          ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
@@ -166,14 +166,18 @@ int main(void)
          ctx->style.button.border_color = nk_rgba(0,0,0,0);
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
-         content_title(ctx, "History", &fonts[6]);
+         if (nk_window_is_active(ctx, "content"))
+            content_title(ctx, menu_entries.entry[sidebar_current_id].label, &fonts[6]);
+         else
+            content_title(ctx, "RetroArch", &fonts[6]);
          set_style(ctx);
       }
       nk_end(ctx);
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
-      nk_begin(ctx, "Content", nk_rect(content_view_position_x, content_view_position_y, content_view_width, WINDOW_HEIGHT - content_title_height), 0);
+      nk_begin(ctx, "content", nk_rect(content_view_position_x, content_view_position_y, content_view_width, WINDOW_HEIGHT - content_title_height), 0);
       { 
+         content_entries = 0;
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
          ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
@@ -181,29 +185,123 @@ int main(void)
          ctx->style.button.border_color = nk_rgba(0,0,0,0);
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
-         int i;
-         /* setup row layout */
-         nk_layout_row_template_begin(ctx, 220);
-         nk_layout_row_template_push_dynamic(ctx);
-         for (i=0; i < items; i++)
-            nk_layout_row_template_push_variable(ctx, 280);
-         nk_layout_row_template_push_dynamic(ctx);
-         nk_layout_row_template_end(ctx);
-
-         /* do your widgets */
-         i = 0;
-         for (int j=1; j <= 1 + history_entries.count / items; j++)
+         if (history_active/* || sidebar_active*/)
          {
-            nk_spacing(ctx, 1);
-            for (; i < items * j && i < history_entries.count; i++)
-               content_entry_widget(ctx, &history_entries.entry[i], content_current_id, activate && nk_window_is_active(ctx, "Content"), items, history_entry_cb);
-            nk_spacing(ctx, 1);
+            int col = 0;
+            if (sidebar_active)
+            {
+               content_subtitle(ctx, "History", &fonts[4]);
+               if (history_entries.count >= content_view_width / 280)
+                  items = history_entries.count / 2;
+            }
+            else
+               items = content_view_width / 280;
+
+            nk_layout_row_template_begin(ctx, 220);
+            nk_layout_row_template_push_dynamic(ctx);
+            for (col = 0; col < items; col++)
+               nk_layout_row_template_push_variable(ctx, 280);
+            nk_layout_row_template_push_dynamic(ctx);
+            nk_layout_row_template_end(ctx);
+
+            col = 0;
+            for (int row = 1; row <= history_entries.count / items + 1; row++)
+            {
+               if (row == 1)
+                  nk_spacing(ctx, 1);
+               for (; col < items * row && col < history_entries.count; col++)
+                  content_entry_widget(ctx, &history_entries.entry[col], content_current_id, activate && content_active, items, history_entry_cb);
+               if(col != history_entries.count)
+               {
+                  nk_spacing(ctx, 1);
+                  nk_spacing(ctx, 1);
+               }
+            }
+            content_entries += history_entries.count;
          }
 
-         content_entries = history_entries.count;
+         if (folders_active /*|| sidebar_active*/)
+         {
+            printf ("folders!!!!");
+            fflush(stdout);
+            int col = 0;
+            if (sidebar_active)
+            {
+               content_subtitle(ctx, "File Browser", &fonts[4]);
+               if (file_browser_entries.count >= content_view_width / 280)
+                  items = file_browser_entries.count / 2;
+            }
+            else
+               items = content_view_width / 280;
+
+            if (0)
+            {
+            nk_layout_row_template_begin(ctx, 220);
+            nk_layout_row_template_push_dynamic(ctx);
+            for (col = 0; col < items; col++)
+               nk_layout_row_template_push_variable(ctx, 280);
+            nk_layout_row_template_push_dynamic(ctx);
+            nk_layout_row_template_end(ctx);
+            }
+
+            col = 0;
+            for (int row = 1; row <= file_browser_entries.count / items + 1; row++)
+            {
+               if (row == 1)
+                  nk_spacing(ctx, 1);
+               for (; col < items * row && col < file_browser_entries.count; col++)
+                  content_entry_widget(ctx, &file_browser_entries.entry[col], content_current_id, activate && content_active, items, history_entry_cb);
+               if(col != file_browser_entries.count)
+               {
+                  nk_spacing(ctx, 1);
+                  nk_spacing(ctx, 1);
+               }
+            }
+            content_entries += file_browser_entries.count;
+         }
+
+         if (netplay_active/* || sidebar_active*/)
+         {
+            int col = 0;
+            if (sidebar_active)
+            {
+               content_subtitle(ctx, "Netplay Rooms", &fonts[4]);
+               if (file_browser_entries.count >= content_view_width / 280)
+                  items = file_browser_entries.count / 2;
+            }
+            else
+               items = content_view_width / 280;
+
+               if (0)
+               {
+               nk_layout_row_template_begin(ctx, 220);
+               nk_layout_row_template_push_dynamic(ctx);
+               for (col = 0; col < items; col++)
+                  nk_layout_row_template_push_variable(ctx, 280);
+               nk_layout_row_template_push_dynamic(ctx);
+               nk_layout_row_template_end(ctx);
+               }
+
+            col = 0;
+            for (int row = 1; row <= file_browser_entries.count / items + 1; row++)
+            {
+               if (row == 1)
+                  nk_spacing(ctx, 1);
+               for (; col < items * row && col < file_browser_entries.count; col++)
+                  content_entry_widget(ctx, &file_browser_entries.entry[col], content_current_id, activate && content_active, items, history_entry_cb);
+               if(col != file_browser_entries.count)
+               {
+                  nk_spacing(ctx, 1);
+                  nk_spacing(ctx, 1);
+               }
+            }
+            content_entries += file_browser_entries.count;
+         }
+
+         set_style(ctx);
       }
       nk_end(ctx);
-      nk_begin(ctx, "Sidebar", nk_rect(0, 0, sidebar_width, WINDOW_HEIGHT), 0);
+      nk_begin(ctx, "sidebar", nk_rect(0, 0, sidebar_width, WINDOW_HEIGHT), 0);
       {
          /* no borders, and no selection colors for the sidebar */
          ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
@@ -215,7 +313,7 @@ int main(void)
          sidebar_spacer(ctx, 8);
          for (int i=0; i < menu_entries.count; i++)
          {
-            sidebar_entry_widget(ctx, &menu_entries.entry[i], sidebar_current_id, activate && nk_window_is_active(ctx, "Sidebar"), menu_entries.offset, menu_entry_cb);
+            sidebar_entry_widget(ctx, &menu_entries.entry[i], sidebar_current_id, activate && nk_window_is_active(ctx, "sidebar"), menu_entries.offset, menu_entry_cb);
             if (menu_entries.entry[i].spacer)
                sidebar_spacer(ctx, 16);
          }
@@ -232,7 +330,7 @@ int main(void)
       const struct nk_input *in = &ctx->input;
       const int delta = 60;
       activate = false;
-      if (nk_window_is_active(ctx, "Content"))
+      if (nk_window_is_active(ctx, "content"))
       {
          if (sidebar_width > 15 )
          {
@@ -249,7 +347,7 @@ int main(void)
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_LEFT))
          {
             if (content_current_id % items == 0)
-               nk_window_set_focus(ctx, "Sidebar");
+               nk_window_set_focus(ctx, "sidebar");
             if (content_current_id >= 1)
                content_current_id -= 1;
             lock_keys = true;
@@ -281,12 +379,12 @@ int main(void)
          }
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_BACKSPACE))
          {
-            nk_window_set_focus(ctx, "Sidebar");
+            nk_window_set_focus(ctx, "sidebar");
             lock_keys = true;
          }
          
       }
-      else
+      else if (nk_window_is_active(ctx, "sidebar"))
       {
          if (sidebar_width < WINDOW_WIDTH * 20 / 100)
          {
@@ -312,7 +410,7 @@ int main(void)
          }
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_RIGHT))
          {
-            nk_window_set_focus(ctx, "Content");
+            nk_window_set_focus(ctx, "content");
             lock_keys = true;
          }
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_ENTER))
@@ -323,6 +421,11 @@ int main(void)
       }
       if (frames % 16 == 0)
          lock_keys = false;
+      content_active = nk_window_is_active(ctx, "content");
+      sidebar_active = nk_window_is_active(ctx, "sidebar");
+      folders_active = strcmp(menu_entries.entry[sidebar_current_id].name, "folders") == 0 ? true : false;
+      history_active = strcmp(menu_entries.entry[sidebar_current_id].name, "history") == 0 ? true : false;
+      netplay_active = strcmp(menu_entries.entry[sidebar_current_id].name, "netplay") == 0 ? true : false;
 
       {
          float bg[4];
