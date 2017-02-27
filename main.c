@@ -228,18 +228,18 @@ int main(void)
             if (sidebar_active)
             {
                content_subtitle(ctx, "File Browser", &fonts[4]);
-               if (file_browser_entries.count >= content_view_width / 280)
+               if (file_browser_entries.count >= content_view_width / 160)
                   items = file_browser_entries.count / 2;
                else
-                  items = content_view_width / 280;
+                  items = content_view_width / 160;
             }
             else
-               items = content_view_width / 280;
+               items = content_view_width / 160;
 
-            nk_layout_row_template_begin(ctx, 220);
+            nk_layout_row_template_begin(ctx, 160);
             nk_layout_row_template_push_dynamic(ctx);
             for (col = 0; col < items; col++)
-               nk_layout_row_template_push_variable(ctx, 280);
+               nk_layout_row_template_push_variable(ctx, 160);
             nk_layout_row_template_push_dynamic(ctx);
             nk_layout_row_template_end(ctx);
 
@@ -268,15 +268,15 @@ int main(void)
                if (file_browser_entries.count >= content_view_width / 280)
                   items = file_browser_entries.count / 2;
                else
-                  items = content_view_width / 280;
+                  items = content_view_width / 160;
             }
             else
-               items = content_view_width / 280;
+               items = content_view_width / 160;
 
-            nk_layout_row_template_begin(ctx, 220);
+            nk_layout_row_template_begin(ctx, 160);
             nk_layout_row_template_push_dynamic(ctx);
             for (col = 0; col < items; col++)
-               nk_layout_row_template_push_variable(ctx, 280);
+               nk_layout_row_template_push_variable(ctx, 160);
             nk_layout_row_template_push_dynamic(ctx);
             nk_layout_row_template_end(ctx);
 
@@ -326,17 +326,18 @@ int main(void)
       nk_end(ctx);
 
       const struct nk_input *in = &ctx->input;
-      const int delta = 60;
+      const int delta = WINDOW_WIDTH * 5 / 100;
+      int lip = WINDOW_WIDTH * 0.3 / 100;
       activate = false;
       if (nk_window_is_active(ctx, "content"))
       {
-         if (sidebar_width > 15 )
+         if (sidebar_width > lip )
          {
             sidebar_width -= delta;
             content_view_width += delta;
             content_view_position_x = sidebar_width + 1;
          }
-         else if (sidebar_width < 15)
+         else if (sidebar_width < lip)
          {
             sidebar_width += 1;
             content_view_width -= 1;
