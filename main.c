@@ -193,6 +193,8 @@ int main(void)
                content_subtitle(ctx, "History", &fonts[4]);
                if (history_entries.count >= content_view_width / 280)
                   items = history_entries.count / 2;
+               else
+                  items = content_view_width / 280;
             }
             else
                items = content_view_width / 280;
@@ -230,6 +232,8 @@ int main(void)
                content_subtitle(ctx, "File Browser", &fonts[4]);
                if (file_browser_entries.count >= content_view_width / 280)
                   items = file_browser_entries.count / 2;
+               else
+                  items = content_view_width / 280;
             }
             else
                items = content_view_width / 280;
@@ -268,6 +272,8 @@ int main(void)
                content_subtitle(ctx, "Netplay Rooms", &fonts[4]);
                if (file_browser_entries.count >= content_view_width / 280)
                   items = file_browser_entries.count / 2;
+               else
+                  items = content_view_width / 280;
             }
             else
                items = content_view_width / 280;
