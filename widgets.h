@@ -102,7 +102,7 @@ struct atv_icon sidebar_icons[20];
 struct atv_font fonts[7];
 struct atv_menu_entries menu_entries;
 struct atv_menu_entries playlist_entries;
-struct atv_content_entries history_entries;
+struct atv_content_entries featured_entries;
 struct atv_content_entries file_browser_entries;
 struct atv_content_entries netplay_rooms_entries;
 
@@ -212,7 +212,7 @@ static void menu_entry_add(struct atv_menu_entries* entries,
 static void dummy_data_load()
 {
    menu_entry_add(&menu_entries, 0,  "search",   "",              "search_fab", 6, true);
-   menu_entry_add(&menu_entries, 1,  "history",  "History",       "history",    3, false);
+   menu_entry_add(&menu_entries, 1,  "featured",  "Featured",       "featured",    3, false);
    menu_entry_add(&menu_entries, 2,  "folder",  "File Browser",  "folder",    3, false);
    menu_entry_add(&menu_entries, 3,  "netplay",  "Netplay Rooms", "netplay",    3, true);
    menu_entry_add(&menu_entries, 4,  "settings", "Settings",      "settings",   3, false);
@@ -223,16 +223,17 @@ static void dummy_data_load()
    menu_entry_add(&playlist_entries, 0,  "gba",  "Gameboy Advance","gba", 2, false);
    menu_entry_add(&playlist_entries, 1,  "snes", "Super Nintendo", "snes",2, false);
 
-   content_entry_add(&history_entries, 0, false, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
-   content_entry_add(&history_entries, 1, false,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
-   content_entry_add(&history_entries, 2, false,  "Dummy 1",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 3, false,  "Dummy 2",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 4, false,  "Dummy 3",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 5, false,  "Dummy 4",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 6, false,  "Dummy 5",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 7, false,  "Dummy 6",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 8, false,  "Dummy 7",                               "Dummy Data",      "png/color_bars.png", 2, 1);
-   content_entry_add(&history_entries, 9, false,  "Dummy 8",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 0, false, "Legend of Zelda: A Link to The Past", "Super Nintendo",  "png/alttp.png",      2, 1);
+   content_entry_add(&featured_entries, 1, false,  "Legend of Zelda: The Minish Cap",     "Gameboy Advance", "png/minish.png",     2, 1);
+   content_entry_add(&featured_entries, 2, false,  "Dummy 1 with line wrapping over at least two lines",
+                                                                                           "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 3, false,  "Dummy 2",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 4, false,  "Dummy 3",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 5, false,  "Dummy 4",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 6, false,  "Dummy 5",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 7, false,  "Dummy 6",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 8, false,  "Dummy 7",                               "Dummy Data",      "png/color_bars.png", 2, 1);
+   content_entry_add(&featured_entries, 9, false,  "Dummy 8",                               "Dummy Data",      "png/color_bars.png", 2, 1);
 
    content_entry_add(&file_browser_entries, 0, true, "C:\\", "Drive", "drive", 2, 1);
    content_entry_add(&file_browser_entries, 1, true, "D:\\", "Drive", "drive", 2, 1);
@@ -432,6 +433,7 @@ int content_entry_do_button_text_styled(nk_flags *state,
     struct nk_rect label;
     struct nk_rect sublabel;
 
+    const int pad = 2;
     NK_ASSERT(style);
     NK_ASSERT(state);
     NK_ASSERT(entry);
@@ -444,35 +446,39 @@ int content_entry_do_button_text_styled(nk_flags *state,
 
     if (entry->setting)
     {
-      icon.w = (bounds.w / 2) - 2 * style->padding.x - 2 * style->image_padding.x - 12;
-      icon.h = icon.w / 1;
-      icon.x = bounds.x + 0.5 * icon.w + style->padding.x + style->image_padding.x + 6;
-      icon.y = bounds.y + style->padding.y + style->image_padding.y + 6;
+      icon.w = (bounds.w / 2) - style->padding.x - style->image_padding.x - 2 * pad;
+      icon.h = icon.w;
+      icon.x = bounds.x + 0.5 * icon.w + style->padding.x + style->image_padding.x + pad;
+      icon.y = bounds.y + style->padding.y + style->image_padding.y + pad;
 
-      label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
-      label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
-      label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
-      label.h = fonts[entry->font_label].height * 2 + style->padding.y;
+      label.x = bounds.x + style->padding.x + style->image_padding.x + pad;
+      label.y = bounds.y + bounds.h - style->padding.y - style->image_padding.y - fonts[entry->font_sublabel].height - fonts[entry->font_label].height * 1.2 - 2 * pad;
+      label.w = bounds.w - style->padding.x- style->image_padding.x - 2 * pad;
+      label.h = fonts[entry->font_label].height + style->padding.y + pad;
+
+      sublabel.x = bounds.x + style->padding.x + style->image_padding.x + pad;
+      sublabel.y = bounds.y + bounds.h - style->padding.y - style->image_padding.y - fonts[entry->font_sublabel].height - 2 * pad;
+      sublabel.w = bounds.w - style->padding.x- style->image_padding.x - 2 * pad;
+      sublabel.h = fonts[entry->font_label].height + style->padding.y + pad;
     }
     else
     {
-      icon.x = bounds.x + style->padding.x + style->image_padding.x + 6;
-      icon.y = bounds.y + style->padding.y + style->image_padding.y + 6;
-      icon.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;
+      icon.x = bounds.x + style->padding.x + style->image_padding.x + pad;
+      icon.y = bounds.y + style->padding.y + style->image_padding.y + pad;
+      icon.w = bounds.w - style->padding.x - 2 * style->image_padding.x - 2 * pad;
       icon.h = icon.w / 2.14;
 
-      label.x = bounds.x + style->padding.x + style->image_padding.x + 6;
-      label.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6;
-      label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
+      label.x = bounds.x + style->padding.x + style->image_padding.x + pad;
+      label.y = bounds.y + style->padding.y + style->image_padding.y + icon.h + 2 * pad;
+      label.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 2 * pad;
       label.h = fonts[entry->font_label].height * 2 + style->padding.y;
+
+      sublabel.x = bounds.x + style->padding.x + style->image_padding.x + pad;
+      sublabel.y = bounds.y + bounds.h - style->padding.y - style->image_padding.y - fonts[entry->font_sublabel].height - 2 * pad;
+      sublabel.w = bounds.w - style->padding.x- style->image_padding.x - 2 * pad;
+      sublabel.h = fonts[entry->font_label].height + style->padding.y + pad;
     }
     
-
-
-    sublabel.x = bounds.x + style->padding.x + style->image_padding.x + 6;
-    sublabel.y = bounds.y + style->padding.y + style->image_padding.y + 6 + icon.h + 6 + label.h + 6;
-    sublabel.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x - 12;;
-    sublabel.h = fonts[entry->font_sublabel].height * 2 + style->padding.y;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
     content_entry_draw_button_text_image(out, entry, &bounds, &label, &sublabel, &icon, *state, style, hover);
