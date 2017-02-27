@@ -93,7 +93,7 @@ int main(void)
    static int content_entries = 0;
    static bool activate = false;
    static bool content_active, sidebar_active, favorites_active, 
-               recent_active, folders_active, netplay_active = false;
+               recent_active, folders_active, netplay_active, settings_active = false;
 
    glfwSwapInterval(1);
 
@@ -294,7 +294,7 @@ int main(void)
             int col = 0;
             if (sidebar_active)
             {
-               content_subtitle(ctx, "Netplay Rooms", &fonts[4]);
+               content_subtitle(ctx, "Netplay", &fonts[4]);
                items = 12;
             }
             else
@@ -321,6 +321,60 @@ int main(void)
                }
             }
             content_entries += netplay_rooms_entries.count;
+         }
+         if (settings_active)
+         {
+            int col = 0;
+            if (sidebar_active)
+            {
+               content_subtitle(ctx, "Settings", &fonts[4]);
+               items = 12;
+            }
+            else
+               items = content_view_width / 160;
+
+            static char buf[MAX_SIZE];
+            snprintf(buf, sizeof(buf), "%s", settings_entries.entry[col].sublabel);
+            content_subtitle(ctx, buf, &fonts[3]);
+
+            nk_layout_row_template_begin(ctx, 160);
+            nk_layout_row_template_push_dynamic(ctx);
+            for (col = 0; col < items; col++)
+               nk_layout_row_template_push_variable(ctx, 160);
+            nk_layout_row_template_push_dynamic(ctx);
+            nk_layout_row_template_end(ctx);
+
+            col = 0;
+            for (int row = 1; row <= settings_entries.count / items + 1; row++)
+            {
+               if (row == 1)
+                  nk_spacing(ctx, 1);
+               for (; col < items * row && col < settings_entries.count; col++)
+               {
+                  if (!strcmp(buf, settings_entries.entry[col].sublabel) == 0)
+                  {
+                     snprintf(buf, sizeof(buf), "%s", settings_entries.entry[col].sublabel);
+                     content_subtitle(ctx, buf, &fonts[3]);
+                     nk_layout_row_template_begin(ctx, 160);
+                     nk_layout_row_template_push_dynamic(ctx);
+                     for (int n = 0; n < items; n++)
+                        nk_layout_row_template_push_variable(ctx, 160);
+                     nk_layout_row_template_push_dynamic(ctx);
+                     nk_layout_row_template_end(ctx);
+                     nk_spacing(ctx, 1);
+                  }
+                  content_entry_widget(ctx, &settings_entries.entry[col], content_current_id, activate && content_active,  favorites_entry_cb);
+               }
+               
+               if(col != settings_entries.count)
+               {
+                  nk_spacing(ctx, 1);
+                  nk_spacing(ctx, 1);
+               }
+            }
+            
+            
+            content_entries += settings_entries.count;
          }
 
          set_style(ctx);
@@ -453,6 +507,7 @@ int main(void)
       favorites_active = strcmp(menu_entries.entry[sidebar_current_id].name, "favorites") == 0 ? true : false;
       recent_active = strcmp(menu_entries.entry[sidebar_current_id].name, "recent") == 0 ? true : false;
       netplay_active = strcmp(menu_entries.entry[sidebar_current_id].name, "netplay") == 0 ? true : false;
+      settings_active = strcmp(menu_entries.entry[sidebar_current_id].name, "settings") == 0 ? true : false;
 
       {
          float bg[4];

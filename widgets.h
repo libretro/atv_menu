@@ -106,6 +106,7 @@ struct atv_content_entries favorites_entries;
 struct atv_content_entries recent_entries;
 struct atv_content_entries file_browser_entries;
 struct atv_content_entries netplay_rooms_entries;
+struct atv_content_entries settings_entries;
 
 struct nk_image color_bars, test_entry, test_entry2;
 
@@ -252,7 +253,14 @@ static void dummy_data_load()
    content_entry_add(&file_browser_entries, 4, true, "Content",   "Folder", "folder", 2, 1);
    content_entry_add(&file_browser_entries, 5, true, "Downloads", "Folder", "folder", 2, 1);
 
-   content_entry_add(&netplay_rooms_entries, 0, true, "Empty", "Refresh", "refresh", 2, 1);
+   content_entry_add(&netplay_rooms_entries,  0, true, "Empty", "Refresh", "refresh", 2, 1);
+
+   content_entry_add(&settings_entries, 0, true, "Drivers", "System", "settings", 2, 1);
+   content_entry_add(&settings_entries, 1, true, "Video",   "System", "video",    2, 1);
+   content_entry_add(&settings_entries, 2, true, "Audio",   "System", "audio",    2, 1);
+   content_entry_add(&settings_entries, 3, true, "Input",   "System", "input",    2, 1);
+   content_entry_add(&settings_entries, 4, true, "Saving",  "Cores",  "saving",    2, 1);
+   content_entry_add(&settings_entries, 5, true, "Throttle","Cores",  "throttle", 2, 1);
 }
 
 /* widgets */
