@@ -226,10 +226,10 @@ static void details_data_add(struct atv_content_entry *entry,
    entry->screenshot[0] = icon_load(buf);
    snprintf(buf, sizeof(buf), "png/screenshots/%s2.png", filename);
    printf(buf);
-   entry->screenshot[0] = icon_load(buf);
+   entry->screenshot[1] = icon_load(buf);
    snprintf(buf, sizeof(buf), "png/screenshots/%s3.png", filename);
    printf(buf);
-   entry->screenshot[0] = icon_load(buf);
+   entry->screenshot[2] = icon_load(buf);
    fflush(stdout);
 }
 
@@ -565,10 +565,10 @@ static void content_entry_widget(struct nk_context *ctx, struct atv_content_entr
    content_button(ctx, entry, hover == entry->id, activate, cb);
 }
 
-void content_entry_draw_screenshots(struct nk_command_buffer *out,
-    struct atv_content_entry *entry,
-    const struct nk_rect *bounds, const struct nk_rect *label, const struct nk_rect *sublabel,
-    const struct nk_rect *image, nk_flags state, const struct nk_style_button *style, bool hover)
+void content_entry_draw_screenshot(struct nk_command_buffer *out,
+    struct atv_content_entry *entry, int idx,
+    const struct nk_rect *bounds,
+    const struct nk_rect *image, nk_flags state, const struct nk_style_button *style)
 {
     struct nk_text text;
     const struct nk_style_item *background;
@@ -578,7 +578,7 @@ void content_entry_draw_screenshots(struct nk_command_buffer *out,
     if (background->type == NK_STYLE_ITEM_COLOR)
         text.background = background->data.color;
     else text.background = style->text_background;
-    if (state & NK_WIDGET_STATE_HOVER || hover)
+    if (state & NK_WIDGET_STATE_HOVER)
     {
         text.text = style->text_hover;
         text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
@@ -596,23 +596,21 @@ void content_entry_draw_screenshots(struct nk_command_buffer *out,
       nk_draw_image(out, *image, &entry->icon_setting.normal, nk_white);
     }
     
-    if (!entry->setting)
-      nk_draw_image(out, *image, &entry->screenshot[0], nk_white);
-    nk_widget_text_wrap(out, *label, entry->label, strlen(entry->label), &text, &fonts[entry->font_label].font->handle);
-    nk_widget_text_wrap(out, *sublabel, entry->sublabel, strlen(entry->sublabel), &text, &fonts[entry->font_sublabel].font->handle);
+   nk_draw_image(out, *image, &entry->screenshot[idx], nk_white);
 }
 
 int content_entry_do_screenshot(nk_flags *state,
-    struct atv_content_entry *entry,
+    struct atv_content_entry *entry, int idx,
     struct nk_command_buffer *out, struct nk_rect bounds,
     enum nk_button_behavior behavior, const struct nk_style_button *style,
     const struct nk_input *in)
 {
     int ret;
+    struct nk_rect icon;
     struct nk_rect content;
-    struct nk_rect s1, s2, s3;
+    struct nk_rect label;
+    struct nk_rect sublabel;
 
-    const int pad = 20;
     NK_ASSERT(style);
     NK_ASSERT(state);
     NK_ASSERT(entry);
@@ -620,30 +618,23 @@ int content_entry_do_screenshot(nk_flags *state,
     if (!out || !entry || !style )
         return nk_false;
 
-   ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
-   s1.w = (bounds.w / 3) - 4 * pad;
-   s1.h = s1.w * 2 / 3;
-   s1.x = bounds.x + pad
-   s1.y = bounds.y + pad;
+    ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
 
-   s2.w = (bounds.w / 3) - 4 * pad;
-   s2.h = s2.w * 2 / 3;
-   s2.x = s1.x + s1.w + pad
-   s2.y = bounds.y + pad;
-
-   s3.w = (bounds.w / 3) - 4 * pad;
-   s3.h = s3.w * 2 / 3;
-   s3.x = s2.x + s2.w + pad;
-   s3.y = bounds.y + pad;
-
+    {
+      icon.x = bounds.x + style->padding.x + style->image_padding.x;
+      icon.y = bounds.y + style->padding.y + style->image_padding.y;
+      icon.w = bounds.w - 2 * style->padding.x - 2 * style->image_padding.x;
+      icon.h = icon.w / 1.5;
+    }
+    
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    content_entry_draw_screenshots(out, entry, &bounds, %s1, &s2, &s3, *state, style, 1);
+    content_entry_draw_screenshot(out, entry, idx, &bounds, &icon, *state, style);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
 
 
-static int content_entry_screenshots_widget(struct nk_context *ctx, struct atv_content_entry* entry)
+static int content_entry_screenshots_widget(struct nk_context *ctx, struct atv_content_entry* entry, int idx)
 {
    struct nk_window *win;
    struct nk_panel *layout;
@@ -664,7 +655,7 @@ static int content_entry_screenshots_widget(struct nk_context *ctx, struct atv_c
    state = nk_widget(&bounds, ctx);
    if (!state) return 0;
    in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
-   return content_entry_do_screenshot(&ctx->last_widget_state, entry, &win->buffer,
+   return content_entry_do_screenshot(&ctx->last_widget_state, entry, idx, &win->buffer,
            bounds, ctx->button_behavior, &ctx->style.button, in);
 }
 static void content_title(struct nk_context *ctx, char* label, 

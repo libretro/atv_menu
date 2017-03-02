@@ -418,16 +418,33 @@ int main(void)
          nk_window_close(ctx, "header");
          nk_begin(ctx, "details", nk_rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT / 2), 0);
          {
-               /* no borders, and no selection colors for the sidebar */
-               ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
-               ctx->style.button.hover  = nk_style_item_color(nk_rgba(0,0,0,0));
-               ctx->style.button.active = nk_style_item_color(nk_rgba(0,0,0,0));
-               ctx->style.button.border_color = nk_rgba(0,0,0,0);
-               ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+            set_style(ctx);
+            ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+            ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+            ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+            ctx->style.button.border_color = nk_rgba(0,0,0,0);
+            ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+            ctx->style.button.rounding = 0;
+            ctx->style.button.padding.x = 5;
+            ctx->style.button.padding.y = 5;
+            ctx->style.window.spacing.x = 20;
 
-               nk_layout_row_static(ctx, 300, WINDOW_WIDTH, 1);
-               //content_entry_widget(ctx, &recent_entries.entry[0], content_current_id, activate && content_active, favorites_entry_cb);
-               content_entry_screenshots_widget(ctx, &favorites_entries.entry[1]);
+            content_title(ctx, favorites_entries.entry[1].label, &fonts[6], NK_TEXT_ALIGN_RIGHT);
+
+            items = 3;
+            nk_layout_row_template_begin(ctx, 400);
+            nk_layout_row_template_push_dynamic(ctx);
+            for (col = 0; col < items; col++)
+               nk_layout_row_template_push_variable(ctx, 600);
+            nk_layout_row_template_push_dynamic(ctx);
+            nk_layout_row_template_end(ctx);
+
+            nk_spacing(ctx, 1);
+            content_entry_screenshots_widget(ctx, &favorites_entries.entry[1], 0);
+            content_entry_screenshots_widget(ctx, &favorites_entries.entry[1], 1);
+            content_entry_screenshots_widget(ctx, &favorites_entries.entry[1], 2);
+            nk_spacing(ctx, 1);
+            nk_spacing(ctx, 1);
          }
          nk_end(ctx);
       }
