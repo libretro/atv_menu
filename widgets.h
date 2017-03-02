@@ -609,12 +609,10 @@ int content_entry_do_screenshot(nk_flags *state,
     const struct nk_input *in)
 {
     int ret;
-    struct nk_rect icon;
     struct nk_rect content;
-    struct nk_rect label;
-    struct nk_rect sublabel;
+    struct nk_rect s1, s2, s3;
 
-    const int pad = 2;
+    const int pad = 20;
     NK_ASSERT(style);
     NK_ASSERT(state);
     NK_ASSERT(entry);
@@ -622,16 +620,24 @@ int content_entry_do_screenshot(nk_flags *state,
     if (!out || !entry || !style )
         return nk_false;
 
-    ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
+   ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
+   s1.w = (bounds.w / 3) - 4 * pad;
+   s1.h = s1.w * 2 / 3;
+   s1.x = bounds.x + pad
+   s1.y = bounds.y + pad;
 
+   s2.w = (bounds.w / 3) - 4 * pad;
+   s2.h = s2.w * 2 / 3;
+   s2.x = s1.x + s1.w + pad
+   s2.y = bounds.y + pad;
 
-   icon.w = (bounds.w / 2) - style->padding.x - style->image_padding.x - 2 * pad;
-   icon.h = icon.w * 2 / 3;
-   icon.x = bounds.x + 0.5 * icon.w + style->padding.x + style->image_padding.x + pad;
-   icon.y = bounds.y + style->padding.y + style->image_padding.y + pad;
+   s3.w = (bounds.w / 3) - 4 * pad;
+   s3.h = s3.w * 2 / 3;
+   s3.x = s2.x + s2.w + pad;
+   s3.y = bounds.y + pad;
 
     if (style->draw_begin) style->draw_begin(out, style->userdata);
-    content_entry_draw_screenshots(out, entry, &bounds, &label, &sublabel, &icon, *state, style, 1);
+    content_entry_draw_screenshots(out, entry, &bounds, %s1, &s2, &s3, *state, style, 1);
     if (style->draw_end) style->draw_end(out, style->userdata);
     return ret;
 }
