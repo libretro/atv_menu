@@ -52,6 +52,10 @@
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
 #define LEN(a) (sizeof(a)/sizeof(a)[0])
 
+static bool content_active, sidebar_active, favorites_active, 
+            recent_active, folders_active, netplay_active, settings_active,
+            details_active, dialog_active, game_active = false;
+
 void test(void)
 {
    printf("test");
@@ -73,6 +77,7 @@ void playlist_entry_cb(struct atv_menu_entry *entry)
 void favorites_entry_cb(struct atv_content_entry *entry)
 {
    printf("Do something with this: %s\n", entry->label);
+   details_active = true;
    fflush(stdout);
 }
 
@@ -92,8 +97,7 @@ int main(void)
    static int items = 0;
    static int content_entries = 0;
    static bool activate = false;
-   static bool content_active, sidebar_active, favorites_active, 
-               recent_active, folders_active, netplay_active, settings_active = false;
+
 
    glfwSwapInterval(1);
 
@@ -158,7 +162,7 @@ int main(void)
       nk_glfw3_new_frame();
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
-      nk_begin(ctx, "Header", nk_rect(WINDOW_WIDTH * 20 / 100 + 1, 0, WINDOW_WIDTH * 80 / 100 - 1, content_title_height), 0);
+      nk_begin(ctx, "header", nk_rect(WINDOW_WIDTH * 20 / 100 + 1, 0, WINDOW_WIDTH * 80 / 100 - 1, content_title_height), 0);
       { 
          set_style(ctx);
          ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
@@ -168,218 +172,220 @@ int main(void)
          ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
 
          if (nk_window_is_active(ctx, "content"))
-            content_title(ctx, menu_entries.entry[sidebar_current_id].label, &fonts[6]);
+            content_title(ctx, menu_entries.entry[sidebar_current_id].label, &fonts[6], NK_TEXT_ALIGN_RIGHT);
          else
-            content_title(ctx, "RetroArch", &fonts[6]);
+            content_title(ctx, "RetroArch", &fonts[6], NK_TEXT_ALIGN_RIGHT);
          set_style(ctx);
       }
       nk_end(ctx);
 
       ctx->style.window.fixed_background = nk_style_item_color(nk_rgba(38, 50, 56, 255));
+
       nk_begin(ctx, "content", nk_rect(content_view_position_x, content_view_position_y, content_view_width, WINDOW_HEIGHT - content_title_height), 0);
       { 
-         content_entries = 0;
-         set_style(ctx);
-         ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
-         ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
-         ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON]);
-         ctx->style.button.border_color = nk_rgba(0,0,0,0);
-         ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
-         ctx->style.button.rounding = 0;
+            content_entries = 0;
+            set_style(ctx);
+            ctx->style.button.normal = nk_style_item_color(atv_colors[NK_COLOR_WINDOW]);
+            ctx->style.button.hover  = nk_style_item_color(atv_colors[NK_COLOR_BUTTON_HOVER]);
+            ctx->style.button.active = nk_style_item_color(atv_colors[NK_COLOR_BUTTON]);
+            ctx->style.button.border_color = nk_rgba(0,0,0,0);
+            ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+            ctx->style.button.rounding = 0;
 
-         if (favorites_active || (sidebar_active && recent_active))
-         {
-            int col = 0;
-            if (sidebar_active)
+            if (favorites_active || (sidebar_active && recent_active))
             {
-               content_subtitle(ctx, "Favorites", &fonts[4]);
-               items = 8;
-            }
-            else
-               items = content_view_width / 400;
-            
-            nk_layout_row_template_begin(ctx, 280);
-            nk_layout_row_template_push_dynamic(ctx);
-            for (col = 0; col < items; col++)
-               nk_layout_row_template_push_variable(ctx, 400);
-            nk_layout_row_template_push_dynamic(ctx);
-            nk_layout_row_template_end(ctx);
-
-            col = 0;
-            for (int row = 1; row <= favorites_entries.count / items + 1; row++)
-            {
-               if (row == 1)
-                  nk_spacing(ctx, 1);
-               for (; col < items * row && col < favorites_entries.count; col++)
-                  content_entry_widget(ctx, &favorites_entries.entry[col], content_current_id, activate && content_active, favorites_entry_cb);
-               if(col != favorites_entries.count)
+               int col = 0;
+               if (sidebar_active)
                {
-                  nk_spacing(ctx, 1);
-                  nk_spacing(ctx, 1);
+                  content_subtitle(ctx, "Favorites", &fonts[4], NK_TEXT_ALIGN_LEFT);
+                  items = 8;
                }
-            }
-            content_entries += favorites_entries.count;
-         }
+               else
+                  items = content_view_width / 400;
+               
+               nk_layout_row_template_begin(ctx, 280);
+               nk_layout_row_template_push_dynamic(ctx);
+               for (col = 0; col < items; col++)
+                  nk_layout_row_template_push_variable(ctx, 400);
+               nk_layout_row_template_push_dynamic(ctx);
+               nk_layout_row_template_end(ctx);
 
-         if (recent_active || (sidebar_active && favorites_active))
-         {
-            int col = 0;
-            if (sidebar_active)
-            {
-               content_subtitle(ctx, "Recent", &fonts[4]);
-               items = 8;
-            }
-            else
-               items = content_view_width / 400;
-
-            nk_layout_row_template_begin(ctx, 280);
-            nk_layout_row_template_push_dynamic(ctx);
-            for (col = 0; col < items; col++)
-               nk_layout_row_template_push_variable(ctx, 400);
-            nk_layout_row_template_push_dynamic(ctx);
-            nk_layout_row_template_end(ctx);
-
-            col = 0;
-            for (int row = 1; row <= recent_entries.count / items + 1; row++)
-            {
-               if (row == 1)
-                  nk_spacing(ctx, 1);
-               for (; col < items * row && col < recent_entries.count; col++)
-                  content_entry_widget(ctx, &recent_entries.entry[col], content_current_id, activate && content_active, favorites_entry_cb);
-               if(col != recent_entries.count)
+               col = 0;
+               for (int row = 1; row <= favorites_entries.count / items + 1; row++)
                {
-                  nk_spacing(ctx, 1);
-                  nk_spacing(ctx, 1);
-               }
-            }
-            content_entries += recent_entries.count;
-         }
-
-         if (folders_active)
-         {
-            int col = 0;
-            if (sidebar_active)
-            {
-               content_subtitle(ctx, "File Browser", &fonts[4]);
-               items = 12;
-            }
-            else
-               items = content_view_width / 160;
-
-            nk_layout_row_template_begin(ctx, 160);
-            nk_layout_row_template_push_dynamic(ctx);
-            for (col = 0; col < items; col++)
-               nk_layout_row_template_push_variable(ctx, 160);
-            nk_layout_row_template_push_dynamic(ctx);
-            nk_layout_row_template_end(ctx);
-
-            col = 0;
-            for (int row = 1; row <= file_browser_entries.count / items + 1; row++)
-            {
-               if (row == 1)
-                  nk_spacing(ctx, 1);
-               for (; col < items * row && col < file_browser_entries.count; col++)
-                  content_entry_widget(ctx, &file_browser_entries.entry[col], content_current_id, activate && content_active,  favorites_entry_cb);
-               if(col != file_browser_entries.count)
-               {
-                  nk_spacing(ctx, 1);
-                  nk_spacing(ctx, 1);
-               }
-            }
-            content_entries += file_browser_entries.count;
-         }
-
-         if (netplay_active)
-         {
-            int col = 0;
-            if (sidebar_active)
-            {
-               content_subtitle(ctx, "Netplay", &fonts[4]);
-               items = 12;
-            }
-            else
-               items = content_view_width / 160;
-
-            nk_layout_row_template_begin(ctx, 160);
-            nk_layout_row_template_push_dynamic(ctx);
-            for (col = 0; col < items; col++)
-               nk_layout_row_template_push_variable(ctx, 160);
-            nk_layout_row_template_push_dynamic(ctx);
-            nk_layout_row_template_end(ctx);
-
-            col = 0;
-            for (int row = 1; row <= netplay_rooms_entries.count / items + 1; row++)
-            {
-               if (row == 1)
-                  nk_spacing(ctx, 1);
-               for (; col < items * row && col < netplay_rooms_entries.count; col++)
-                  content_entry_widget(ctx, &netplay_rooms_entries.entry[col], content_current_id, activate && content_active,  favorites_entry_cb);
-               if(col != netplay_rooms_entries.count)
-               {
-                  nk_spacing(ctx, 1);
-                  nk_spacing(ctx, 1);
-               }
-            }
-            content_entries += netplay_rooms_entries.count;
-         }
-         if (settings_active)
-         {
-            int col = 0;
-            if (sidebar_active)
-            {
-               content_subtitle(ctx, "Settings", &fonts[4]);
-               items = 12;
-            }
-            else
-               items = content_view_width / 160;
-
-            static char buf[MAX_SIZE];
-            snprintf(buf, sizeof(buf), "%s", settings_entries.entry[col].sublabel);
-            content_subtitle(ctx, buf, &fonts[3]);
-
-            nk_layout_row_template_begin(ctx, 160);
-            nk_layout_row_template_push_dynamic(ctx);
-            for (col = 0; col < items; col++)
-               nk_layout_row_template_push_variable(ctx, 160);
-            nk_layout_row_template_push_dynamic(ctx);
-            nk_layout_row_template_end(ctx);
-
-            col = 0;
-            for (int row = 1; row <= settings_entries.count / items + 1; row++)
-            {
-               if (row == 1)
-                  nk_spacing(ctx, 1);
-               for (; col < items * row && col < settings_entries.count; col++)
-               {
-                  if (!strcmp(buf, settings_entries.entry[col].sublabel) == 0)
+                  if (row == 1)
+                     nk_spacing(ctx, 1);
+                  for (; col < items * row && col < favorites_entries.count; col++)
+                     content_entry_widget(ctx, &favorites_entries.entry[col], content_current_id, activate && content_active, favorites_entry_cb);
+                  if(col != favorites_entries.count)
                   {
-                     snprintf(buf, sizeof(buf), "%s", settings_entries.entry[col].sublabel);
-                     content_subtitle(ctx, buf, &fonts[3]);
-                     nk_layout_row_template_begin(ctx, 160);
-                     nk_layout_row_template_push_dynamic(ctx);
-                     for (int n = 0; n < items; n++)
-                        nk_layout_row_template_push_variable(ctx, 160);
-                     nk_layout_row_template_push_dynamic(ctx);
-                     nk_layout_row_template_end(ctx);
+                     nk_spacing(ctx, 1);
                      nk_spacing(ctx, 1);
                   }
-                  content_entry_widget(ctx, &settings_entries.entry[col], content_current_id, activate && content_active,  favorites_entry_cb);
+               }
+               content_entries += favorites_entries.count;
+            }
+
+            if (recent_active || (sidebar_active && favorites_active))
+            {
+               int col = 0;
+               if (sidebar_active)
+               {
+                  content_subtitle(ctx, "Recent", &fonts[4], NK_TEXT_ALIGN_LEFT);
+                  items = 8;
+               }
+               else
+                  items = content_view_width / 400;
+
+               nk_layout_row_template_begin(ctx, 280);
+               nk_layout_row_template_push_dynamic(ctx);
+               for (col = 0; col < items; col++)
+                  nk_layout_row_template_push_variable(ctx, 400);
+               nk_layout_row_template_push_dynamic(ctx);
+               nk_layout_row_template_end(ctx);
+
+               col = 0;
+               for (int row = 1; row <= recent_entries.count / items + 1; row++)
+               {
+                  if (row == 1)
+                     nk_spacing(ctx, 1);
+                  for (; col < items * row && col < recent_entries.count; col++)
+                     content_entry_widget(ctx, &recent_entries.entry[col], content_current_id, activate && content_active, favorites_entry_cb);
+                  if(col != recent_entries.count)
+                  {
+                     nk_spacing(ctx, 1);
+                     nk_spacing(ctx, 1);
+                  }
+               }
+               content_entries += recent_entries.count;
+            }
+
+            if (folders_active)
+            {
+               int col = 0;
+               if (sidebar_active)
+               {
+                  content_subtitle(ctx, "File Browser", &fonts[4], NK_TEXT_ALIGN_LEFT);
+                  items = 12;
+               }
+               else
+                  items = content_view_width / 160;
+
+               nk_layout_row_template_begin(ctx, 160);
+               nk_layout_row_template_push_dynamic(ctx);
+               for (col = 0; col < items; col++)
+                  nk_layout_row_template_push_variable(ctx, 160);
+               nk_layout_row_template_push_dynamic(ctx);
+               nk_layout_row_template_end(ctx);
+
+               col = 0;
+               for (int row = 1; row <= file_browser_entries.count / items + 1; row++)
+               {
+                  if (row == 1)
+                     nk_spacing(ctx, 1);
+                  for (; col < items * row && col < file_browser_entries.count; col++)
+                     content_entry_widget(ctx, &file_browser_entries.entry[col], content_current_id, activate && content_active,  favorites_entry_cb);
+                  if(col != file_browser_entries.count)
+                  {
+                     nk_spacing(ctx, 1);
+                     nk_spacing(ctx, 1);
+                  }
+               }
+               content_entries += file_browser_entries.count;
+            }
+
+            if (netplay_active)
+            {
+               int col = 0;
+               if (sidebar_active)
+               {
+                  content_subtitle(ctx, "Netplay", &fonts[4], NK_TEXT_ALIGN_LEFT);
+                  items = 12;
+               }
+               else
+                  items = content_view_width / 160;
+
+               nk_layout_row_template_begin(ctx, 160);
+               nk_layout_row_template_push_dynamic(ctx);
+               for (col = 0; col < items; col++)
+                  nk_layout_row_template_push_variable(ctx, 160);
+               nk_layout_row_template_push_dynamic(ctx);
+               nk_layout_row_template_end(ctx);
+
+               col = 0;
+               for (int row = 1; row <= netplay_rooms_entries.count / items + 1; row++)
+               {
+                  if (row == 1)
+                     nk_spacing(ctx, 1);
+                  for (; col < items * row && col < netplay_rooms_entries.count; col++)
+                     content_entry_widget(ctx, &netplay_rooms_entries.entry[col], content_current_id, activate && content_active,  favorites_entry_cb);
+                  if(col != netplay_rooms_entries.count)
+                  {
+                     nk_spacing(ctx, 1);
+                     nk_spacing(ctx, 1);
+                  }
+               }
+               content_entries += netplay_rooms_entries.count;
+            }
+            if (settings_active)
+            {
+               int col = 0;
+               if (sidebar_active)
+               {
+                  content_subtitle(ctx, "Settings", &fonts[4], NK_TEXT_ALIGN_LEFT);
+                  items = 12;
+               }
+               else
+                  items = content_view_width / 160;
+
+               static char buf[MAX_SIZE];
+               snprintf(buf, sizeof(buf), "%s", settings_entries.entry[col].sublabel);
+               content_subtitle(ctx, buf, &fonts[3], NK_TEXT_ALIGN_LEFT);
+
+               nk_layout_row_template_begin(ctx, 160);
+               nk_layout_row_template_push_dynamic(ctx);
+               for (col = 0; col < items; col++)
+                  nk_layout_row_template_push_variable(ctx, 160);
+               nk_layout_row_template_push_dynamic(ctx);
+               nk_layout_row_template_end(ctx);
+
+               col = 0;
+               for (int row = 1; row <= settings_entries.count / items + 1; row++)
+               {
+                  if (row == 1)
+                     nk_spacing(ctx, 1);
+                  for (; col < items * row && col < settings_entries.count; col++)
+                  {
+                     if (!strcmp(buf, settings_entries.entry[col].sublabel) == 0)
+                     {
+                        snprintf(buf, sizeof(buf), "%s", settings_entries.entry[col].sublabel);
+                        content_subtitle(ctx, buf, &fonts[3], NK_TEXT_ALIGN_LEFT);
+                        nk_layout_row_template_begin(ctx, 160);
+                        nk_layout_row_template_push_dynamic(ctx);
+                        for (int n = 0; n < items; n++)
+                           nk_layout_row_template_push_variable(ctx, 160);
+                        nk_layout_row_template_push_dynamic(ctx);
+                        nk_layout_row_template_end(ctx);
+                        nk_spacing(ctx, 1);
+                     }
+                     content_entry_widget(ctx, &settings_entries.entry[col], content_current_id, activate && content_active,  favorites_entry_cb);
+                  }
+                  
+                  if(col != settings_entries.count)
+                  {
+                     nk_spacing(ctx, 1);
+                     nk_spacing(ctx, 1);
+                  }
                }
                
-               if(col != settings_entries.count)
-               {
-                  nk_spacing(ctx, 1);
-                  nk_spacing(ctx, 1);
-               }
+               
+               content_entries += settings_entries.count;
             }
-            
-            
-            content_entries += settings_entries.count;
-         }
 
-         set_style(ctx);
-      }
+            set_style(ctx);
+         }
       nk_end(ctx);
+
       nk_begin(ctx, "sidebar", nk_rect(0, 0, sidebar_width, WINDOW_HEIGHT), 0);
       {
          /* no borders, and no selection colors for the sidebar */
@@ -405,6 +411,26 @@ int main(void)
          set_style(ctx);
       }
       nk_end(ctx);
+      if (details_active)
+      {
+         int col = 0;
+         nk_window_close(ctx, "content");
+         nk_window_close(ctx, "header");
+         nk_begin(ctx, "details", nk_rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT / 2), 0);
+         {
+               /* no borders, and no selection colors for the sidebar */
+               ctx->style.button.normal = nk_style_item_color(nk_rgba(0,0,0,0));
+               ctx->style.button.hover  = nk_style_item_color(nk_rgba(0,0,0,0));
+               ctx->style.button.active = nk_style_item_color(nk_rgba(0,0,0,0));
+               ctx->style.button.border_color = nk_rgba(0,0,0,0);
+               ctx->style.button.text_alignment = NK_TEXT_ALIGN_LEFT;
+
+               nk_layout_row_static(ctx, 300, WINDOW_WIDTH, 1);
+               //content_entry_widget(ctx, &recent_entries.entry[0], content_current_id, activate && content_active, favorites_entry_cb);
+               content_entry_screenshots_widget(ctx, &favorites_entries.entry[1]);
+         }
+         nk_end(ctx);
+      }
 
       const struct nk_input *in = &ctx->input;
       const int delta = WINDOW_WIDTH * 5 / 100;

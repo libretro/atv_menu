@@ -72,13 +72,16 @@ struct atv_content_entry
 {
    int id;
    bool setting;
-   char label     [MAX_SIZE];
-   char sublabel  [MAX_SIZE];
-   char icon_path [MAX_SIZE];
+   char label       [MAX_SIZE];
+   char sublabel    [MAX_SIZE];
+   char description [MAX_SIZE];
+   char icon_path   [MAX_SIZE];
    struct atv_icon icon_setting;
    struct nk_image icon;
+   struct nk_image screenshot[3];
    int  font_label;
-   int  font_sublabel; 
+   int  font_sublabel;
+   int  font_description;
 };
 
 struct atv_menu_entries
@@ -211,6 +214,25 @@ static void menu_entry_add(struct atv_menu_entries* entries,
    menu_entry_icon_load(&entries->entry[index].icon, icon);
 }
 
+static void details_data_add(struct atv_content_entry *entry,
+   const char* description, int font,
+   char *filename)
+{
+   snprintf(entry->description, MAX_SIZE, "%s", description);
+   entry->font_description = font;
+   char buf[MAX_SIZE];
+   snprintf(buf, sizeof(buf), "png/screenshots/%s1.png", filename);
+   printf(buf);
+   entry->screenshot[0] = icon_load(buf);
+   snprintf(buf, sizeof(buf), "png/screenshots/%s2.png", filename);
+   printf(buf);
+   entry->screenshot[0] = icon_load(buf);
+   snprintf(buf, sizeof(buf), "png/screenshots/%s3.png", filename);
+   printf(buf);
+   entry->screenshot[0] = icon_load(buf);
+   fflush(stdout);
+}
+
 static void dummy_data_load()
 {
    menu_entry_add(&menu_entries, 0, "search",    "",          "search_fab", 6, true);
@@ -261,6 +283,8 @@ static void dummy_data_load()
    content_entry_add(&settings_entries, 3, true, "Input",   "System", "input",    2, 1);
    content_entry_add(&settings_entries, 4, true, "Saving",  "Cores",  "saving",    2, 1);
    content_entry_add(&settings_entries, 5, true, "Throttle","Cores",  "throttle", 2, 1);
+
+   details_data_add(&favorites_entries.entry[1], "Link returns in an all-new Game Boy Advance adventure. When the sorcerer Vaati turns Princess Zelda to stone, the king of Hyrule sends Link on a quest that takes him to all-new locations......", 2, "minish");
 }
 
 /* widgets */
@@ -399,8 +423,6 @@ static void sidebar_spacer(struct nk_context *ctx, int height)
    sidebar_placeholder(ctx);
    nk_layout_row_end(ctx);
 }
-
-/* ----------------- */
 
 void content_entry_draw_button_text_image(struct nk_command_buffer *out,
     struct atv_content_entry *entry,
@@ -543,29 +565,125 @@ static void content_entry_widget(struct nk_context *ctx, struct atv_content_entr
    content_button(ctx, entry, hover == entry->id, activate, cb);
 }
 
+void content_entry_draw_screenshots(struct nk_command_buffer *out,
+    struct atv_content_entry *entry,
+    const struct nk_rect *bounds, const struct nk_rect *label, const struct nk_rect *sublabel,
+    const struct nk_rect *image, nk_flags state, const struct nk_style_button *style, bool hover)
+{
+    struct nk_text text;
+    const struct nk_style_item *background;
+    background = nk_draw_button(out, bounds, state, style);
+
+    /* select correct colors */
+    if (background->type == NK_STYLE_ITEM_COLOR)
+        text.background = background->data.color;
+    else text.background = style->text_background;
+    if (state & NK_WIDGET_STATE_HOVER || hover)
+    {
+        text.text = style->text_hover;
+        text.text = atv_colors_custom[NK_COLOR_TEXT_HOVER];
+        nk_draw_image(out, *image, &entry->icon_setting.hover, nk_white);
+    }
+    else if (state & NK_WIDGET_STATE_ACTIVED)
+    {
+        text.text = style->text_active;
+        text.text = atv_colors_custom[NK_COLOR_TEXT_ACTIVE];
+        nk_draw_image(out, *image, &entry->icon_setting.selected, nk_white);
+    }
+    else 
+    { 
+      text.text = style->text_normal;
+      nk_draw_image(out, *image, &entry->icon_setting.normal, nk_white);
+    }
+    
+    if (!entry->setting)
+      nk_draw_image(out, *image, &entry->screenshot[0], nk_white);
+    nk_widget_text_wrap(out, *label, entry->label, strlen(entry->label), &text, &fonts[entry->font_label].font->handle);
+    nk_widget_text_wrap(out, *sublabel, entry->sublabel, strlen(entry->sublabel), &text, &fonts[entry->font_sublabel].font->handle);
+}
+
+int content_entry_do_screenshot(nk_flags *state,
+    struct atv_content_entry *entry,
+    struct nk_command_buffer *out, struct nk_rect bounds,
+    enum nk_button_behavior behavior, const struct nk_style_button *style,
+    const struct nk_input *in)
+{
+    int ret;
+    struct nk_rect icon;
+    struct nk_rect content;
+    struct nk_rect label;
+    struct nk_rect sublabel;
+
+    const int pad = 2;
+    NK_ASSERT(style);
+    NK_ASSERT(state);
+    NK_ASSERT(entry);
+    NK_ASSERT(out);
+    if (!out || !entry || !style )
+        return nk_false;
+
+    ret = nk_do_button(state, out, bounds, style, in, behavior, &content);
+
+
+   icon.w = (bounds.w / 2) - style->padding.x - style->image_padding.x - 2 * pad;
+   icon.h = icon.w * 2 / 3;
+   icon.x = bounds.x + 0.5 * icon.w + style->padding.x + style->image_padding.x + pad;
+   icon.y = bounds.y + style->padding.y + style->image_padding.y + pad;
+
+    if (style->draw_begin) style->draw_begin(out, style->userdata);
+    content_entry_draw_screenshots(out, entry, &bounds, &label, &sublabel, &icon, *state, style, 1);
+    if (style->draw_end) style->draw_end(out, style->userdata);
+    return ret;
+}
+
+
+static int content_entry_screenshots_widget(struct nk_context *ctx, struct atv_content_entry* entry)
+{
+   struct nk_window *win;
+   struct nk_panel *layout;
+   const struct nk_input *in;
+
+   struct nk_rect bounds;
+   enum nk_widget_layout_states state;
+
+   NK_ASSERT(ctx);
+   NK_ASSERT(ctx->current);
+   NK_ASSERT(ctx->current->layout);
+   if (!ctx || !ctx->current || !ctx->current->layout)
+      return 0;
+
+   win = ctx->current;
+   layout = win->layout;
+
+   state = nk_widget(&bounds, ctx);
+   if (!state) return 0;
+   in = (state == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
+   return content_entry_do_screenshot(&ctx->last_widget_state, entry, &win->buffer,
+           bounds, ctx->button_behavior, &ctx->style.button, in);
+}
 static void content_title(struct nk_context *ctx, char* label, 
-   struct atv_font* f)
+   struct atv_font* f, int align)
 {
    nk_style_set_font(ctx, &f->font->handle);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
    nk_layout_row_end(ctx);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 1);
    nk_layout_row_push(ctx, 1.0f);
-   nk_label(ctx, label, NK_TEXT_ALIGN_RIGHT);
+   nk_label(ctx, label, align);
    nk_layout_row_end(ctx);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
    nk_layout_row_end(ctx);
 }
 
 static void content_subtitle(struct nk_context *ctx, char* label, 
-   struct atv_font* f)
+   struct atv_font* f, int align)
 {
    nk_style_set_font(ctx, &f->font->handle);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
    nk_layout_row_end(ctx);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 1.2f, 1);
    nk_layout_row_push(ctx, 1.0f);
-   nk_label(ctx, label, NK_TEXT_ALIGN_LEFT);
+   nk_label(ctx, label, align);
    nk_layout_row_end(ctx);
    nk_layout_row_begin(ctx, NK_DYNAMIC, f->height * 0.3f, 1);
    nk_layout_row_end(ctx);
