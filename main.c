@@ -446,6 +446,7 @@ int main(void)
             nk_spacing(ctx, 1);
             nk_spacing(ctx, 1);
          }
+         nk_window_set_focus(ctx, "details");
          nk_end(ctx);
       }
 
@@ -539,6 +540,17 @@ int main(void)
          if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_ENTER))
          {
             activate = true;
+            lock_keys = true;
+         }
+      }
+      else if (nk_window_is_active(ctx, "details"))
+      {
+         if (!lock_keys && nk_input_is_key_pressed(in, NK_KEY_BACKSPACE))
+         {
+            nk_window_set_focus(ctx, "content");
+            nk_window_show(ctx, "content", NK_SHOWN);
+            nk_window_show(ctx, "header", NK_SHOWN);
+            details_active = false;
             lock_keys = true;
          }
       }
