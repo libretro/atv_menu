@@ -98,9 +98,7 @@ int main(void)
    static int content_entries = 0;
    static bool activate = false;
 
-
    glfwSwapInterval(1);
-
    glfwSetErrorCallback(error_callback);
    if (!glfwInit())
    {
@@ -550,14 +548,16 @@ int main(void)
             nk_window_set_focus(ctx, "content");
             nk_window_show(ctx, "content", NK_SHOWN);
             nk_window_show(ctx, "header", NK_SHOWN);
-            details_active = false;
             lock_keys = true;
          }
       }
       if (frames % 16 == 0)
          lock_keys = false;
+
+
       content_active = nk_window_is_active(ctx, "content");
       sidebar_active = nk_window_is_active(ctx, "sidebar");
+      details_active = nk_window_is_active(ctx, "details");
       folders_active = strcmp(menu_entries.entry[sidebar_current_id].name, "folder") == 0 ? true : false;
       favorites_active = strcmp(menu_entries.entry[sidebar_current_id].name, "favorites") == 0 ? true : false;
       recent_active = strcmp(menu_entries.entry[sidebar_current_id].name, "recent") == 0 ? true : false;
